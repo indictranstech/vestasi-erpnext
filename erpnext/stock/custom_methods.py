@@ -40,7 +40,8 @@ def validate_serial_qc(doc,method):
 						frappe.throw(_("QC Required for Serial {0} ").format(sr))
 
 #check if there is serial no and is valid serial no
-def validate_serial_no(d):	
+def validate_serial_no(d):
+	frappe.errprint("Helo")	
 	if not d.custom_serial_no and frappe.db.get_value('Item',d.item_code,'serial_no')=='Yes':
 		frappe.throw(_("Row {0}: Enter serial no for Item {1}").format(d.idx,d.item_code))
 	elif d.custom_serial_no:
@@ -85,6 +86,9 @@ def validate_qc_status(doc,method):
 				qc_status=frappe.db.get_value('Serial No',{"item_code":d.item_code,"name":sr},'qc_status')
 				if qc_status!='Accepted':
 					frappe.throw(_("QC Not Accpeted for Serial {0} ").format(sr))
+
+
+
 def update_serial_no(doc,method): #Rohit_sw
 	for d in doc.get('delivery_note_details'):
 		if d.custom_serial_no:
@@ -147,31 +151,37 @@ def update_serialgl_dn(doc,method):
 #Function to handle serials
 def generate_serial_no_fg(doc,method):
 	previous_source_batch=''
-	source_batch_no=''
+	#source_batch_no=''
 	for d in doc.get('mtn_details'):
 		if doc.purpose in ['Manufacture/Repack','Material Receipt']:
+			
 			if d.t_warehouse and d.qty_per_drum_bag:
 				generate_serial_no_per_drum(d,doc)
-			elif d.t_warehouse and not d.qty_per_drum_bag and previous_source_batch:
+			
+			elif d.t_warehouse and not d.qty_per_drum_bag:
 				generate_serial_no_and_batch(d,previous_source_batch,doc)
-			elif not d.qty_per_drum_bag and not d.target_batch and d.custom_serial_no and d.t_warehouse:
-				sr_no=(d.custom_serial_no).splitlines()
-				for sr in sr_no:
-					frappe.db.sql("""update `tabSerial No` set batch_no='%s' where name='%s'"""%(source_batch_no,sr))
+			
+			# elif not d.qty_per_drum_bag and not d.target_batch and d.custom_serial_no and d.t_warehouse:
+			# 	sr_no=(d.custom_serial_no).splitlines()
+			# 	for sr in sr_no:
+			# 		frappe.db.sql("""update `tabSerial No` set batch_no='%s' where name='%s'"""%(source_batch_no,sr))
+			
 			elif d.t_warehouse:
 				validate_serial_no(d)
-			else:
-				if d.source_batch:
-					source_batch_no=d.source_batch
-				validate_serial_no(d)
+			
+			# else:
+			# 	if d.source_batch:
+			# 		source_batch_no=d.source_batch
+			# 	validate_serial_no(d)
+			
 			if d.source_batch:
 				previous_source_batch=d.source_batch
-			elif not d.source_batch:
-					previous_source_batch=''
+			
 
 		elif doc.purpose in ['Material Issue','Purchase Return']:
 			validate_serial_no(d)
 			issue_serial_no(d,'Not Available',0)
+		
 		elif doc.purpose in ['Sales Return']:
 			validate_serial_no(d)
 			quantity=d.qty
@@ -220,13 +230,12 @@ def create_serial_no(d,series,qty):
 	return sr_no.name
 
 
-
 #create target batch no based on series of source batch no
 def create_target_batch(d,previous_source_batch):
-	series=frappe.db.get_value('Batch',{'name':previous_source_batch},'naming_series')
-	if series:
+	t_batch_no=get_batch_id(previous_source_batch)
+	if t_batch_no:
 		batch=frappe.new_doc('Batch')
-		batch.naming_series=series
+		batch.batch_id=t_batch_no
 		batch.item=d.item_code
 		batch.warehouse=d.t_warehouse
 		batch.creation='Auto'
@@ -234,9 +243,18 @@ def create_target_batch(d,previous_source_batch):
 		d.target_batch=batch.name
 	return d.target_batch
 
+def get_batch_id(batch_no):
+        import re
+        batch_no=re.sub(r'\d+(?=[^\d]*$)', lambda m: str(int(m.group())+1).zfill(len(m.group())), batch_no)
+        return batch_no
+
 #Automatically generate batch and serial no on submission these serial no will be source serial in next process
 def generate_serial_no_and_batch(d,previous_source_batch,doc):
-	target_batch=create_target_batch(d,previous_source_batch)
+	target_batch=d.target_batch#new anand
+	if previous_source_batch:
+		target_batch=create_target_batch(d,previous_source_batch)
+	elif not previous_source_batch and not d.target_batch:
+		validate_serial_no(d)
 	sr_no=frappe.new_doc('Serial No')
 	sr_no.serial_no=target_batch
 	sr_no.item_code=d.item_code
@@ -251,6 +269,8 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	sr_no.save(ignore_permissions=True)
 	d.custom_serial_no=d.target_batch
 	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,doc.name,d.item_code))
+
+
 
 def issue_serial_no(d,status,qty):
 		if d.custom_serial_no:
@@ -373,7 +393,7 @@ def get_serial_from(doctype,txt,searchfield,start,page_len,filters):
 def get_source_batch(doctype,txt,searchfield,start,page_len,filters):
 	return frappe.db.sql("""select name from `tabBatch` where warehouse='%s' and name in(select name from `tabSerial No` where qty!=0)"""%(filters.get('warehouse')))
 
-
+#method called for purchase reciept is created aand 
 def generate_serial_no(doc,method):
 	frappe.errprint("hii")
 	for d in doc.get('purchase_receipt_details'):
@@ -431,11 +451,6 @@ def check_range(doc,method):
 			if d.specification in parm:
 				msgprint(_("Duplicate parameter {0} found at row {1}").format(d.specification,d.idx),raise_exception=1)
 			parm.append(d.specification)	
-			
-
-
-
-
 
 
 @frappe.whitelist()

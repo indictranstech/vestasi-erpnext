@@ -424,7 +424,7 @@ class StockEntry(StockController):
 	def get_serial_nos(self,item_name):
 		for d in self.get('mtn_details'):
 			if d.source_batch and d.item_code==item_name:
-				if d.s_warehouse:
+				if d.s_warehouse and frappe.db.get_value('Serial No',d.source_batch,'name'):
 					d.custom_serial_no=frappe.db.get_value('Serial No',d.source_batch,'name')
 					d.grade=frappe.db.get_value('Serial No',d.custom_serial_no,'grade')
 		return "Done"
