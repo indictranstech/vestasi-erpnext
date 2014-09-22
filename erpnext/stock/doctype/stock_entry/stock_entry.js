@@ -90,6 +90,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 
 	on_submit: function() {
 		this.clean_up();
+		location.reload();
 	},
 
 	after_cancel: function() {

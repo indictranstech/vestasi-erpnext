@@ -284,6 +284,7 @@ def issue_serial_no(d,status,qty):
 def update_serial_no_warehouse(doc,method):
 	if doc.purpose=='Material Transfer':
 		for item in doc.get("mtn_details"):
+			validate_serial_no(item)
 			if item.custom_serial_no:
 				sr_no=(item.custom_serial_no).splitlines()
 				for sr in sr_no:
@@ -493,4 +494,3 @@ def assign_checking(sr_no):
 					if count!=0:
 						msg="Assign {0} serial no to Quality Checker".format(count)
 	return msg
-
