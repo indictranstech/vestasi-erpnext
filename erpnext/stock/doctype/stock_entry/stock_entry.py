@@ -412,7 +412,7 @@ class StockEntry(StockController):
 			if d.serial_no_link and d.item_code==item_code:
 				check=self.duplicate_entry(d)
 				if d.s_warehouse:					
-					d.source_batch=frappe.db.get_value('Serial No',d.serial_no_link,'batch_no')
+					#d.source_batch=frappe.db.get_value('Serial No',d.serial_no_link,'batch_no')
 					d.grade=frappe.db.get_value('Serial No',d.serial_no_link,'grade')
 				if check!='No':
 					if d.custom_serial_no and not d.qty_per_drum_bag:
@@ -424,7 +424,7 @@ class StockEntry(StockController):
 	def get_serial_nos(self,item_name):
 		for d in self.get('mtn_details'):
 			if d.source_batch and d.item_code==item_name:
-				if d.s_warehouse:
+				if d.s_warehouse and frappe.db.get_value('Serial No',d.source_batch,'name'):
 					d.custom_serial_no=frappe.db.get_value('Serial No',d.source_batch,'name')
 					d.grade=frappe.db.get_value('Serial No',d.custom_serial_no,'grade')
 		return "Done"

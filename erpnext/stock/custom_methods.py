@@ -220,23 +220,29 @@ def create_serial_no(d,series,qty):
 	return sr_no.name
 
 
-
 #create target batch no based on series of source batch no
 def create_target_batch(d,previous_source_batch):
-	series=frappe.db.get_value('Batch',{'name':previous_source_batch},'naming_series')
-	if series:
-		batch=frappe.new_doc('Batch')
-		batch.naming_series=series
-		batch.item=d.item_code
-		batch.warehouse=d.t_warehouse
-		batch.creation='Auto'
-		batch.save(ignore_permissions=True)
-		d.target_batch=batch.name
-	return d.target_batch
+        t_batch_no=get_batch_id(previous_source_batch)
+        if t_batch_no:
+                batch=frappe.new_doc('Batch')
+                batch.batch_id=t_batch_no
+                batch.item=d.item_code
+                batch.warehouse=d.t_warehouse
+                batch.creation='Auto'
+                batch.save(ignore_permissions=True)
+                d.target_batch=batch.name
+        return d.target_batch
+
+def get_batch_id(batch_no):
+        import re
+        batch_no=re.sub(r'\d+(?=[^\d]*$)', lambda m: str(int(m.group())+1).zfill(len(m.group())), batch_no)
+	return batch_no
 
 #Automatically generate batch and serial no on submission these serial no will be source serial in next process
 def generate_serial_no_and_batch(d,previous_source_batch,doc):
-	target_batch=create_target_batch(d,previous_source_batch)
+	target_batch=d.target_batch#new anand
+	if previous_source_batch:
+		target_batch=create_target_batch(d,previous_source_batch)
 	sr_no=frappe.new_doc('Serial No')
 	sr_no.serial_no=target_batch
 	sr_no.item_code=d.item_code
@@ -264,6 +270,7 @@ def issue_serial_no(d,status,qty):
 def update_serial_no_warehouse(doc,method):
 	if doc.purpose=='Material Transfer':
 		for item in doc.get("mtn_details"):
+			validate_serial_no(item)
 			if item.custom_serial_no:
 				sr_no=(item.custom_serial_no).splitlines()
 				for sr in sr_no:
@@ -478,4 +485,3 @@ def assign_checking(sr_no):
 					if count!=0:
 						msg="Assign {0} serial no to Quality Checker".format(count)
 	return msg
-
