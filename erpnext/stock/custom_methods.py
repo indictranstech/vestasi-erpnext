@@ -41,7 +41,7 @@ def validate_serial_qc(doc,method):
 
 #check if there is serial no and is valid serial no
 def validate_serial_no(d):
-	frappe.errprint("Helo")	
+
 	if not d.custom_serial_no and frappe.db.get_value('Item',d.item_code,'serial_no')=='Yes':
 		frappe.throw(_("Row {0}: Enter serial no for Item {1}").format(d.idx,d.item_code))
 	elif d.custom_serial_no:
@@ -188,10 +188,128 @@ def generate_serial_no_fg(doc,method):
 			if d.qty_per_drum_bag:
 				quantity=d.qty_per_drum_bag
 			issue_serial_no(d,'Available',quantity)
+
+		elif doc.purpose in ['Material Transfer']:
+			validate_serial_no(d)
+			qty=validate_qty_in_serial(d)
+			update_serial_no_warehouse_qty(qty,d,doc)
+
+
+
 		
 		if d.t_warehouse and d.target_batch and doc.purpose=='Manufacture/Repack':
 			update_batch_status("Yes",d.target_batch)
 
+def update_serial_no_warehouse_qty(qty,d,doc):
+	sr_no=(d.custom_serial_no).splitlines()
+	qty_temp=cint(d.qty)
+	for sr in sr_no:
+		serial_qty=frappe.db.get_value("Serial No",sr,"qty")
+		if qty_temp > cint(serial_qty):
+			sn=frappe.get_doc("Serial No",sr)
+			sn.update({"serial_no_warehouse":d.t_warehouse})
+			sn.save(ignore_permissions=True)
+			qty_temp -= cint(serial_qty)
+
+		elif qty_temp < cint(serial_qty):
+			sn=frappe.get_doc("Serial No",sr)
+			sn.update({"qty":qty_temp,"serial_no_warehouse":d.t_warehouse})
+			sn.save(ignore_permissions=True)
+			rem_qty=cint(serial_qty)-qty_temp
+			amend_serial_no_mt(sr,rem_qty,serial_qty,sn.name,d,qty_temp,doc)
+
+def update_serial_no_mt_cancel(doc,method):
+	for d in doc.get('mtn_details'):
+		if d.custom_serial_no:
+			serials=get_serials_from_field(d)
+			update_amended_serials(serials,doc,d)
+
+def update_amended_serials(serials,doc,d):
+	for sn in serials:
+		change_serial_details(sn,doc,d)
+
+def change_serial_details(sn,doc,d):
+	amended_qty=frappe.db.sql("""select qty,amended_serial_no from `tabSerial QTY Maintain` where parent='%s' and document='%s'"""%(sn,doc.name))
+	srn=frappe.get_doc("Serial No",sn)
+	if amended_qty:
+		qty=srn.qty+flt(amended_qty[0][0])
+	else:
+		qty=srn.qty+0
+	srn.update({"qty":qty,"serial_no_warehouse":d.s_warehouse})
+	srn.save(ignore_permissions=True)
+	if amended_qty:
+		sr=frappe.get_doc("Serial No",amended_qty[0][1])
+		qty=sr.qty-flt(amended_qty[0][0])
+		sr.update({"qty":qty})
+		sr.save(ignore_permissions=True)
+
+
+
+def get_serials_from_field(d):
+	serials=(d.custom_serial_no).splitlines()
+	return serials
+
+
+def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
+	parent=(name).split('-') or name
+	idx=frappe.db.sql("select ifnull(max(idx),0) from `tabSerial QTY Maintain` where parent='%s'"%(parent[0]),as_list=1)
+	if idx:
+		idx=idx[0][0]
+	else:
+		idx=0
+	name=create_new_serial_no(idx,sr,rem_qty,d,parent[0])
+	update_maintain_serial(name,sr,serial_qty,rem_qty,idx,doc,parent[0])
+
+def create_new_serial_no(idx,sr,rem_qty,d,parent):
+	sn=frappe.new_doc('Serial No')
+	sn.serial_no=parent+'-'+cstr(idx+1)
+	sn.serial_no_warehouse=d.s_warehouse
+	sn.item_code=d.item_code
+	sn.status='Available'
+	sn.qty=rem_qty
+	sn.finished_good='No'
+	sn.save(ignore_permissions=True)
+	return sn.name
+
+def update_maintain_serial(name,sr,serial_qty,qty_temp,idx,doc,parent):
+	sqm=frappe.new_doc("Serial QTY Maintain")
+	sqm.amended_serial_no=name
+	sqm.idx=cint(idx)+1
+	sqm.qty=qty_temp
+	sqm.document=doc.name
+	sqm.parent_serial=parent
+	sqm.parent=sr
+	sqm.parenttype='Serial No'
+	sqm.parentfield='serial_qty_maintain'
+	sqm.save(ignore_permissions=True)
+
+
+
+def validate_qty_in_serial(d):
+	if d.custom_serial_no:
+		serials=get_serials_list(d.custom_serial_no)
+		qty=get_qty_for_serials(serials)
+		if not d.qty <= qty:
+			frappe.throw(_("Quantity Should be less than or Equal to {0}").format(qty))
+		else:
+			return qty
+
+def get_serials_list(serials):
+	sr_no=(serials).splitlines()
+	sr=''
+	for s in sr_no:
+		if sr:
+			sr+=','+'\''+s+'\''
+		else:
+			sr='\''+s+'\''
+	return sr 
+
+def get_qty_for_serials(serials):
+	qty=frappe.db.sql("""select ifnull(SUM(qty),0) from `tabSerial No` where name in (%s) """%(serials),as_list=1)
+	if qty:
+		return qty[0][0]
+	else:
+		return 0
 
 #Automatically generate serials based on qty and qty per drum
 def generate_serial_no_per_drum(d,doc):
@@ -279,6 +397,7 @@ def issue_serial_no(d,status,qty):
 				frappe.db.sql(""" update `tabSerial No` set status='%s' and
 					serial_no_warehouse='%s' and qty=%s where name='%s'
 					"""%(status, d.s_warehouse or d.t_warehouse, cint(qty), s))
+				
 
 #Update Serial Warehouse in serial no on material transfer
 def update_serial_no_warehouse(doc,method):
@@ -379,6 +498,9 @@ def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 		and ifnull(qty, 0) = 0
 		and status='Available' and finished_good='No' and
 		serial_no_warehouse='%s'"""%(doc['item_code'],doc['t_warehouse']),debug=1)
+	elif doc['purpose']=='Sales Return':
+		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s'
+		and status='Delivered'"""%(doc['item_code']))
 	else:
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s'
 		and ifnull(qty,0)<>0
@@ -396,7 +518,7 @@ def get_source_batch(doctype,txt,searchfield,start,page_len,filters):
 
 #method called for purchase reciept is created aand 
 def generate_serial_no(doc,method):
-	frappe.errprint("hii")
+	
 	for d in doc.get('purchase_receipt_details'):
 		if d.sr_no and d.qty_per_drum_bag:
 			series=frappe.db.get_value('Serial No',{'name':d.custom_serial_no,'status':'Available','item_code':d.item_code},'naming_series')

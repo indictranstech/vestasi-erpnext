@@ -61,6 +61,7 @@ class StockEntry(StockController):
 		update_serial_nos_after_submit(self, "mtn_details")
 		self.update_production_order()
 		self.make_gl_entries()
+		
 
 	def on_cancel(self):
 		self.update_stock_ledger()
