@@ -15,8 +15,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 		if (this.frm.doc.docstatus != 1){
 		msgprint(__("Activities that are Mandatory \n 1. Add QTY per Drum/bag  \n 2. Select Serial No \n 3. click on Add Button"));
 		}
-	},
-
+	},	
 	refresh: function() {
 		this._super();
 
@@ -25,7 +24,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 				cur_frm.add_custom_button(__('Make Purchase Invoice'), this.make_purchase_invoice,
 					frappe.boot.doctype_icons["Purchase Invoice"]);
 			}
-			cur_frm.add_custom_button(__('Make Quality Checking'), this.make_quality_checking);
+			cur_frm.add_custom_button(__('Perform Quality Control'), this.make_quality_checking);
 			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms, "icon-mobile-phone", true);
 
 			this.show_stock_ledger();

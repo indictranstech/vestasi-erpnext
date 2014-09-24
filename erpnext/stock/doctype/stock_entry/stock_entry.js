@@ -80,7 +80,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 				this.add_excise_button();
 			}
 			 if(this.frm.doc.purpose=='Manufacture/Repack'){
-                                this.frm.add_custom_button(__("Make Quality Checking"), function() {
+                                this.frm.add_custom_button(__("Perform Quality Control"), function() {
                                          me.make_quality_checking();
                                 });
                         }
