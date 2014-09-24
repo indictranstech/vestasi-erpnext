@@ -520,7 +520,10 @@ def get_source_batch(doctype,txt,searchfield,start,page_len,filters):
 def generate_serial_no(doc,method):
 	
 	for d in doc.get('purchase_receipt_details'):
-		if d.sr_no and d.qty_per_drum_bag:
+		if not d.sr_no:
+			frappe.throw(_("Select Serial No and Clink on Add for Item: ").format(d.item_code))
+
+		elif d.sr_no and d.qty_per_drum_bag:
 			series=frappe.db.get_value('Serial No',{'name':d.custom_serial_no,'status':'Available','item_code':d.item_code},'naming_series')
 			if series and d.qty_per_drum_bag:
 				frappe.db.sql("update `tabSerial No` set qty='%s',serial_no_warehouse='%s' where name='%s'"%(d.qty_per_drum_bag, d.warehouse,d.sr_no))
@@ -586,6 +589,8 @@ def make_quality_checking(mtn_details):
 				serial_no = (d.get('sr_no')).splitlines() or (d.get('sr_no')).split('\n')
 				msg=assign_checking(serial_no)
 		else:
+				msg=assign_checking(serial_no)
+		else:
 			if d.get('custom_serial_no') and d.get('t_warehouse'):
 				serial_no = (d.get('custom_serial_no')).splitlines() or (d.get('custom_serial_no')).split('\n')
 				msg=assign_checking(serial_no)
@@ -614,5 +619,3 @@ def assign_checking(sr_no):
 					to_do.save()
 					count+=1
 					if count!=0:
-						msg="Assign {0} serial no to Quality Checker".format(count)
-	return msg
