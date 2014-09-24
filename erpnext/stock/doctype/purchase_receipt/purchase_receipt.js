@@ -11,6 +11,12 @@ cur_frm.cscript.other_fname = "other_charges";
 
 frappe.provide("erpnext.stock");
 erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend({
+	onload:function(){
+		if (this.frm.doc.docstatus != 1){
+		msgprint(__("Activities that are Mandatory \n 1. Add QTY per Drum/bag  \n 2. Select Serial No \n 3. click on Add Button"));
+		}
+	},
+
 	refresh: function() {
 		this._super();
 
