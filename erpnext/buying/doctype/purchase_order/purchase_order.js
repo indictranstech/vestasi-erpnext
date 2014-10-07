@@ -11,6 +11,7 @@ cur_frm.cscript.other_fname = "other_charges";
 {% include 'accounts/doctype/purchase_taxes_and_charges_master/purchase_taxes_and_charges_master.js' %}
 {% include 'accounts/doctype/sales_invoice/pos.js' %}
 
+
 erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend({
 	refresh: function(doc, cdt, cdn) {
 		this._super();
@@ -135,6 +136,13 @@ cur_frm.cscript.get_last_purchase_rate = function(doc, cdt, cdn){
 		refresh_field(cur_frm.cscript.fname);
 		var doc = locals[cdt][cdn];
 		cur_frm.cscript.calc_amount( doc, 2);
+	});
+}
+
+cur_frm.cscript.address = function(doc, cdt, cdn){
+	return $c_obj(doc, 'get_details', '', function(r, rt) {
+		cur_frm.set_value('ship_to_address', r.message)
+		refresh_field('ship_to_address');
 	});
 }
 
