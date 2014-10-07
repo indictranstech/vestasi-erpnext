@@ -23,7 +23,9 @@ update_website_context = "erpnext.startup.webutils.update_website_context"
 on_session_creation = "erpnext.startup.event_handlers.on_session_creation"
 before_tests = "erpnext.setup.utils.before_tests"
 
-website_generators = ["Item Group", "Item", "Sales Partner"]
+website_generators = ["Item Group", "Item", "Sales Partner"],
+
+fixtures=["Custom Field"]
 
 standard_queries = "Customer:erpnext.selling.doctype.customer.customer.get_customer_list"
 
