@@ -79,12 +79,18 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 					function() { me.make_return_jv(); }, frappe.boot.doctype_icons["Journal Voucher"]);
 				this.add_excise_button();
 			}
+			 if(this.frm.doc.purpose=='Manufacture/Repack'){
+                                this.frm.add_custom_button(__("Perform Quality Control"), function() {
+                                         me.make_quality_checking();
+                                });
+                        }
 		}
 
 	},
 
 	on_submit: function() {
 		this.clean_up();
+		location.reload();
 	},
 
 	after_cancel: function() {
@@ -323,8 +329,13 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 			method: "erpnext.stock.doctype.stock_entry.stock_entry.get_party_details",
 			args: args,
 		})
-	}
-
+	},
+        make_quality_checking:function(){
+                return this.frm.call({
+                        method: "erpnext.stock.custom_methods.make_quality_checking",
+                        args: {mtn_details:this.frm.doc.mtn_details},
+                })
+       }
 });
 
 cur_frm.script_manager.make(erpnext.stock.StockEntry);
@@ -463,3 +474,58 @@ cur_frm.fields_dict.supplier.get_query = function(doc, cdt, cdn) {
 }
 cur_frm.add_fetch('production_order', 'total_fixed_cost', 'total_fixed_cost');
 cur_frm.add_fetch('bom_no', 'total_fixed_cost', 'total_fixed_cost');
+
+cur_frm.cscript.source_batch = function(doc, cdt, cdn) {
+	var d=locals[cdt][cdn]
+	get_server_fields("get_serial_nos",d.item_code,'',doc,cdt,cdn,1,function(){
+					refresh_field('mtn_details')
+				})
+}
+
+cur_frm.fields_dict.mtn_details.grid.get_field("source_batch").get_query = function(doc,cdt,cdn) {
+        var d = locals[cdt][cdn]
+        if(d.s_warehouse)
+        {
+                return {
+                        filters: {
+                                'warehouse': d.s_warehouse                         
+                        }
+                }
+        }
+       
+}
+
+
+cur_frm.cscript.add = function(doc,cdt,cdn) {  //live rohit_sw
+	var d = locals[cdt][cdn]	
+	get_server_fields("get_source_batch",d.item_code,'',doc,cdt,cdn,1,function(){
+					refresh_field('mtn_details')
+				})
+
+}
+
+cur_frm.fields_dict.mtn_details.grid.get_field("serial_no_link").get_query = function(doc,cdt,cdn) {
+	var d = locals[cdt][cdn]
+	filter={'purpose':doc.purpose || '','s_warehouse':d.s_warehouse || '','t_warehouse':d.t_warehouse || '','item_code':d.item_code || '','qty_per_drum_bag':d.qty_per_drum_bag || ''}
+	return {
+		query: "erpnext.stock.custom_methods.get_serial_no",
+		filters:{
+			'doc':filter
+		}
+
+	}
+}
+
+cur_frm.fields_dict.mtn_details.grid.get_field("target_batch").get_query = function(doc,cdt,cdn) {
+	var d = locals[cdt][cdn]
+	if(d.t_warehouse && doc.purpose=='Manufacture/Repack')
+	{
+		return {
+			filters: {
+				'warehouse': d.t_warehouse,
+				'used':'No'
+			}
+		}
+	}
+}
+

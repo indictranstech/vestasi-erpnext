@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 import frappe
-from frappe import _
 from frappe.utils import flt
 from erpnext.stock.utils import get_buying_amount, get_sales_bom_buying_amount
 

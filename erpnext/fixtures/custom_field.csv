@@ -1,0 +1,106 @@
+"Data Import Template"
+"Table:","Custom Field"
+""
+""
+"Notes:"
+"Please do not change the template headings."
+"First data column must be blank."
+"If you are uploading new records, leave the ""name"" (ID) column blank."
+"If you are uploading new records, ""Naming Series"" becomes mandatory, if present."
+"Only mandatory fields are necessary for new records. You can delete non-mandatory columns if you wish."
+"For updating, you can update only selective columns."
+"You can only upload upto 5000 records in one go. (may be less in some cases)"
+""
+"DocType:","Custom Field","","","","","","","","","","","","","","","","","","","","","",""
+"Column Labels:","ID","Document","Field Type","Label","Insert After","Precision","Options","Field Description","Fieldname","Permission Level","Is Mandatory Field","Read Only","Ignore User Permissions","Width","Default Value","Hidden","Depends On","Print Hide","No Copy","Allow on Submit","In Report Filter","In List View","Report Hide"
+"Column Name:","name","dt","fieldtype","label","insert_after","precision","options","description","fieldname","permlevel","reqd","read_only","ignore_user_permissions","width","default","hidden","depends_on","print_hide","no_copy","allow_on_submit","in_filter","in_list_view","report_hide"
+"Mandatory:","Yes","Yes","Yes","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No"
+"Type:","Data (text)","Link","Select","Data","Select","Select","Text","Text","Data","Int","Check","Check","Check","Data","Text","Check","Data","Check","Check","Check","Check","Check","Check"
+"Info:","","Valid DocType","One of: Button, Check, Code, Column Break, Currency, Data, Date, Datetime, Dynamic Link, Float, HTML, Image, Int, Link, Long Text, Password, Percent, Read Only, Section Break, Select, Small Text, Table, Text, Text Editor, Time","","","One of: 1, 2, 3, 4, 5, 6","","","","Integer","0 or 1","0 or 1","0 or 1","","","0 or 1","","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1"
+"Start entering data below this line"
+"","""ToDo-item_code""","ToDo","Link","Item Code","section_break_6","","Item","","item_code",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-ship_to_address""","Purchase Order","Small Text","Address","address","","","","ship_to_address",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-vendor_address""","Purchase Order","HTML","Vendor Address","ship_to_address","","","","vendor_address",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-address""","Purchase Order","Select","Ship to ","supplier","","
+Work Address
+Buisness Address","","address",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-delivery_date""","Purchase Order","Data","Delivery Date","shipping_terms","","","","delivery_date",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-shipping_terms""","Purchase Order","Data","Shipping Terms","shipping_method","","","","shipping_terms",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-shipping_method""","Purchase Order","Data","Shipping Method","column_break1","","","","shipping_method",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Order-supplier_details""","Purchase Order","Section Break","Shipping details","supplier","","","","supplier_details",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-finished_good""","Serial No","Select","Finished Good","batch_no","","
+Yes
+No","","finished_good",0,0,0,0,"","No",0,"",0,0,0,0,0,0
+"","""Serial No-batch_no""","Serial No","Data","Batch No","is_repacked","","","","batch_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-is_repacked""","Serial No","Select","Is Repacked","","","
+Yes
+No","","is_repacked",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-amend_qty""","Serial No","Int","Amend Qty","make_from","","","","amend_qty",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-make_from""","Serial No","Link","Make from","serial_stock","","Serial No","","make_from",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-serial_qty_maintain""","Serial No","Table","Serial QTY Maintain","serial_stock","","Serial QTY Maintain","","serial_qty_maintain",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-serial_stock""","Serial No","Table","Serial Stock","grade","","Serial Stock","","serial_stock",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-grade""","Serial No","Data","Grade","qc_status","","","","grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-quality_parameters""","Serial No","Table","Quality Parameters","qc_status","","Quality Paramter Values","","quality_parameters",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Company-buisness_address""","Company","Small Text","Buisness Address","address","","","","buisness_address",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Batch-naming_series""","Batch","Select","Series","batch_id","","
+BT","","naming_series",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Batch-batch_item""","Batch","Table","Batch Item","qty","","Batch Item","","batch_item",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-add""","Delivery Note Item","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Receipt Item-add""","Purchase Receipt Item","Button","Add","custom_serial_no","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-add""","Stock Entry Detail","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Serial no","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
+"","""Purchase Receipt Item-sr_no""","Purchase Receipt Item","Text","Serial no","add","","","","sr_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
+"","""Stock Entry Detail-custom_serial_no""","Stock Entry Detail","Text","Serial No","serial_no","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Batch-qty""","Batch","Float","Qty","creation","","","","qty",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""QC Serial-free_si""","QC Serial","Float","Free Si","alpha","","","","free_si",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""QC Serial-ssa""","QC Serial","Float","SSA","mesh_625","","","","ssa",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-qty_per_drum_bag""","Stock Entry Detail","Float","Qty per Drum Bag","col_break3","","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qty""","Serial No","Float","Qty Per UOM","item_code","","","","qty",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Receipt Item-qty_per_drum_bag""","Purchase Receipt Item","Float","Qty Per Drum Bag","rejected_qty","","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-min_value""","Item Quality Inspection Parameter","Float","Min Value","mandatory","","","","min_value",0,0,0,0,"","",0,"",0,0,0,0,1,0
+"","""Item Quality Inspection Parameter-max_value""","Item Quality Inspection Parameter","Float","Max value","min_value","","","","max_value",0,0,0,0,"","",0,"",0,0,0,0,1,0
+"","""Batch-used""","Batch","Select","Used","finished_date","","
+Yes
+No","","used",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Batch-creation""","Batch","Select","Creation","used","","
+Manual
+Auto","","creation",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Warehouse-batch_no_required""","Warehouse","Select","Batch No Required","mobile_no","","
+Yes
+No","","batch_no_required",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item-is_repack_item""","Item","Select","Is Repack Item","is_stock_item","","Yes
+No","","is_repack_item",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item-serial_no""","Item","Select","Has Serial No","has_serial_no","","Yes
+No","","serial_no",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-naming_series""","Serial No","Select","Series","status","","
+SN
+SM
+RM","","naming_series",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qc_status""","Serial No","Select","QC Status","company","","
+Accepted
+Rejected","","qc_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-reusable_item""","Serial No","Select","Reusable Item","serial_no_warehouse","","
+No
+Yes","","reusable_item",0,0,0,0,"","",1,"",1,0,0,0,0,0
+"","""Warehouse-is_flowbin""","Warehouse","Select","is Flowbin","batch_no_required","","
+Yes
+No","","is_flowbin",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-mandatory""","Item Quality Inspection Parameter","Select","Mandatory","value","","
+Yes
+No","","mandatory",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""ToDo-serial_no""","ToDo","Link","Serial No","assigned_by","","Serial No","","serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Warehouse-serial_no""","Warehouse","Link","Serial No","pin","","Serial No","","serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item-grade""","Item","Link","Grade","barcode","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Serial No Link","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Purchase Receipt Item-custom_serial_no""","Purchase Receipt Item","Link","Custom Serial No","col_break5","","Serial No","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-serial_no_uom""","Stock Entry Detail","Link","Serial No UOM","qty_per_drum_bag","","UOM","","serial_no_uom",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-serial_no_link""","Stock Entry Detail","Link","Serial No Link","serial_no_batch","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-serial_no_warehouse""","Serial No","Link","Serial No Warehouse","brand","","Warehouse","","serial_no_warehouse",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Batch-warehouse""","Batch","Link","Warehouse","item","","Warehouse","","warehouse",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-source_batch""","Stock Entry Detail","Link","Source Batch No","col_break4","","Batch","","source_batch",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-target_batch""","Stock Entry Detail","Link","Target Batch","source_batch","","Batch","","target_batch",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-specification_detail""","Item Quality Inspection Parameter","Link","Specification Detail","specification","","Parameter","","specification_detail",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-p""","Item Quality Inspection Parameter","Float","P","hp","","","","p",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-hp""","Item Quality Inspection Parameter","Float","HP","max_value","","","","hp",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Item Quality Inspection Parameter-s""","Item Quality Inspection Parameter","Float","S","p","","","","s",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Stock Entry Detail-grade""","Stock Entry Detail","Data","Grade","target_batch","","","","grade",0,0,0,0,"","",0,"",0,0,0,0,0,0

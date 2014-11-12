@@ -77,6 +77,7 @@ class TestStockEntry(unittest.TestCase):
 		st1 = frappe.copy_doc(test_records[0])
 		st1.insert()
 		st1.submit()
+
 		st2 = frappe.copy_doc(test_records[1])
 		st2.insert()
 		st2.submit()

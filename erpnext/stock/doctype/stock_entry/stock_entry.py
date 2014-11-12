@@ -62,11 +62,13 @@ class StockEntry(StockController):
 		update_serial_nos_after_submit(self, "mtn_details")
 		self.update_production_order()
 		self.make_gl_entries()
+		
 
 	def on_cancel(self):
 		self.update_stock_ledger()
 		self.update_production_order()
 		self.make_gl_entries_on_cancel()
+		#self.update_batch_status('No')
 
 	def validate_fiscal_year(self):
 		from erpnext.accounts.utils import validate_fiscal_year
@@ -78,6 +80,9 @@ class StockEntry(StockController):
 			"Manufacture", "Repack", "Subcontract", "Sales Return", "Purchase Return"]
 		if self.purpose not in valid_purposes:
 			frappe.throw(_("Purpose must be one of {0}").format(comma_or(valid_purposes)))
+
+
+
 
 	def set_transfer_qty(self):
 		for item in self.get("mtn_details"):
@@ -215,8 +220,6 @@ class StockEntry(StockController):
 		allow_negative_stock = cint(frappe.db.get_default("allow_negative_stock"))
 
 		for d in self.get('mtn_details'):
-			d.transfer_qty = flt(d.transfer_qty)
-
 			args = frappe._dict({
 				"item_code": d.item_code,
 				"warehouse": d.s_warehouse or d.t_warehouse,
@@ -241,6 +244,7 @@ class StockEntry(StockController):
 					incoming_rate = flt(self.get_incoming_rate(args), self.precision("incoming_rate", d))
 					if incoming_rate > 0:
 						d.incoming_rate = incoming_rate
+
 				d.amount = flt(d.transfer_qty) * flt(d.incoming_rate)
 				if not d.t_warehouse:
 					raw_material_cost += flt(d.amount)
@@ -255,7 +259,7 @@ class StockEntry(StockController):
 						if d.bom_no:
 							bom = frappe.db.get_value("BOM", d.bom_no, ["operating_cost", "quantity"], as_dict=1)
 							operation_cost_per_unit = flt(bom.operating_cost) / flt(bom.quantity)
-						d.incoming_rate = operation_cost_per_unit + (raw_material_cost + flt(self.total_fixed_cost)) / flt(d.transfer_qty)
+						d.incoming_rate = operation_cost_per_unit + (raw_material_cost / flt(d.transfer_qty))
 					d.amount = flt(d.transfer_qty) * flt(d.incoming_rate)
 					break
 
@@ -401,6 +405,38 @@ class StockEntry(StockController):
 			"posting_date": self.posting_date,
 			"planned_qty": (self.docstatus==1 and -1 or 1 ) * flt(self.fg_completed_qty)
 		})
+	
+	def get_source_batch(self,item_code):
+		for d in self.get('mtn_details'):
+			if d.serial_no_link and d.item_code==item_code:
+				check=self.duplicate_entry(d)
+				if d.s_warehouse:					
+					#d.source_batch=frappe.db.get_value('Serial No',d.serial_no_link,'batch_no')
+					d.grade=frappe.db.get_value('Serial No',d.serial_no_link,'grade')
+				if check!='No':
+					if d.custom_serial_no and not d.qty_per_drum_bag:
+						d.custom_serial_no+=d.serial_no_link+ '\n'
+					elif d.t_warehouse or d.s_warehouse:
+						d.custom_serial_no=d.serial_no_link+ '\n'
+		return "Done"
+
+	def get_serial_nos(self,item_name):
+		for d in self.get('mtn_details'):
+			if d.source_batch and d.item_code==item_name:
+				if d.s_warehouse and frappe.db.get_value('Serial No',d.source_batch,'name'):
+					d.custom_serial_no=frappe.db.get_value('Serial No',d.source_batch,'name')
+					d.grade=frappe.db.get_value('Serial No',d.custom_serial_no,'grade')
+		return "Done"
+	
+	def duplicate_entry(self,d):
+		msg = "Yes"
+		if d.custom_serial_no:
+			sr_no=(d.custom_serial_no).splitlines()
+			for s in sr_no:
+				if s==d.serial_no_link:
+					msg = "No"
+		return msg
+
 
 	def get_item_details(self, args):
 		item = frappe.db.sql("""select stock_uom, description, item_name,
@@ -586,6 +622,13 @@ class StockEntry(StockController):
 			issued_item_qty[t[0]] = flt(t[1])
 
 		return issued_item_qty
+	def update_serial_no_warehouse(self):
+		if self.purpose=='Material Transfer':
+			for item in self.get("mtn_details"):
+				if item.custom_serial_no:
+					sr_no=(item.custom_serial_no).splitlines()
+					for sr in sr_no:
+						frappe.db.sql("""update `tabSerial No` set serial_no_warehouse='%s' where name='%s'"""%(item.t_warehouse,sr))
 
 	def add_to_stock_entry_detail(self, item_dict, bom_no=None):
 		expense_account, cost_center = frappe.db.get_values("Company", self.company, \

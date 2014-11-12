@@ -1,0 +1,127 @@
+{
+ "allow_copy": 1, 
+ "creation": "2013-05-02 17:53:24", 
+ "docstatus": 0, 
+ "doctype": "DocType", 
+ "fields": [
+  {
+   "fieldname": "currency_settings", 
+   "fieldtype": "Section Break", 
+   "in_list_view": 0, 
+   "label": "Currency Settings", 
+   "permlevel": 0
+  }, 
+  {
+   "description": "If disable, 'Rounded Total' field will not be visible in any transaction", 
+   "fieldname": "disable_rounded_total", 
+   "fieldtype": "Check", 
+   "in_list_view": 1, 
+   "label": "Disable Rounded Total", 
+   "permlevel": 0, 
+   "read_only": 0
+  }, 
+  {
+   "default": "INR", 
+   "fieldname": "default_currency", 
+   "fieldtype": "Link", 
+   "ignore_user_permissions": 1, 
+   "in_list_view": 1, 
+   "label": "Default Currency", 
+   "options": "Currency", 
+   "permlevel": 0, 
+   "read_only": 0, 
+   "reqd": 1
+  }, 
+  {
+   "description": "Do not show any symbol like $ etc next to currencies.", 
+   "fieldname": "hide_currency_symbol", 
+   "fieldtype": "Select", 
+   "in_list_view": 1, 
+   "label": "Hide Currency Symbol", 
+   "options": "\nNo\nYes", 
+   "permlevel": 0, 
+   "read_only": 0
+  }, 
+  {
+   "fieldname": "company", 
+   "fieldtype": "Section Break", 
+   "in_list_view": 0, 
+   "label": "Company Settings", 
+   "permlevel": 0, 
+   "read_only": 0
+  }, 
+  {
+   "fieldname": "default_company", 
+   "fieldtype": "Link", 
+   "ignore_user_permissions": 1, 
+   "label": "Default Company", 
+   "options": "Company", 
+   "permlevel": 0, 
+   "read_only": 0, 
+   "reqd": 0
+  }, 
+  {
+   "fieldname": "current_fiscal_year", 
+   "fieldtype": "Link", 
+   "label": "Current Fiscal Year", 
+   "options": "Fiscal Year", 
+   "permlevel": 0, 
+   "read_only": 0, 
+   "reqd": 1
+  }, 
+  {
+   "fieldname": "system", 
+   "fieldtype": "Section Break", 
+   "label": "System Settings", 
+   "permlevel": 0, 
+   "read_only": 0
+  }, 
+  {
+   "fieldname": "country", 
+   "fieldtype": "Link", 
+   "label": "Country", 
+   "options": "Country", 
+   "permlevel": 0
+  }, 
+  {
+   "fieldname": "sms_sender_name", 
+   "fieldtype": "Data", 
+   "label": "SMS Sender Name", 
+   "permlevel": 0, 
+   "read_only": 0
+  }, 
+  {
+   "description": "For Server Side Print Formats", 
+   "fieldname": "print_style", 
+   "fieldtype": "Select", 
+   "label": "Print Format Style", 
+   "options": "Standard\nClassic\nModern\nSpartan", 
+   "permlevel": 0, 
+   "read_only": 0
+  }
+ ], 
+ "hide_toolbar": 0, 
+ "icon": "icon-cog", 
+ "idx": 1, 
+ "in_create": 1, 
+ "issingle": 1, 
+ "modified": "2014-05-26 03:05:48.838329", 
+ "modified_by": "Administrator", 
+ "module": "Setup", 
+ "name": "Global Defaults", 
+ "owner": "Administrator", 
+ "permissions": [
+  {
+   "amend": 0, 
+   "cancel": 0, 
+   "create": 1, 
+   "permlevel": 0, 
+   "read": 1, 
+   "report": 0, 
+   "role": "System Manager", 
+   "submit": 0, 
+   "write": 1
+  }
+ ], 
+ "read_only": 1
+}

@@ -16,7 +16,11 @@ class PurchaseOrder(BuyingController):
 	tname = 'Purchase Order Item'
 	fname = 'po_details'
 
+	
+
+	
 	def __init__(self, arg1, arg2=None):
+
 		super(PurchaseOrder, self).__init__(arg1, arg2)
 		self.status_updater = [{
 			'source_dt': 'Purchase Order Item',
@@ -87,6 +91,13 @@ class PurchaseOrder(BuyingController):
 
 	def get_last_purchase_rate(self):
 		frappe.get_doc('Purchase Common').get_last_purchase_rate(self)
+
+	#roshan
+	def get_details(self):
+		if self.address == 'Work Address':
+			return frappe.db.get_value('Company', self.company, 'address')
+		if self.address == 'Buisness Address':
+			return frappe.db.get_value('Company', self.company, 'buisness_address')
 
 	# Check for Stopped status
 	def check_for_stopped_status(self, pc_obj):
@@ -198,10 +209,13 @@ class PurchaseOrder(BuyingController):
 	def on_update(self):
 		pass
 
+
 def set_missing_values(source, target):
 	target.ignore_pricing_rule = 1
 	target.run_method("set_missing_values")
 	target.run_method("calculate_taxes_and_totals")
+
+
 
 @frappe.whitelist()
 def make_purchase_receipt(source_name, target_doc=None):
@@ -239,11 +253,6 @@ def make_purchase_receipt(source_name, target_doc=None):
 
 @frappe.whitelist()
 def make_purchase_invoice(source_name, target_doc=None):
-	def postprocess(source, target):
-		set_missing_values(source, target)
-		#Get the advance paid Journal Vouchers in Purchase Invoice Advance
-		target.get_advances()
-
 	def update_item(obj, target, source_parent):
 		target.amount = flt(obj.amount) - flt(obj.billed_amt)
 		target.base_amount = target.amount * flt(source_parent.conversion_rate)
@@ -269,6 +278,6 @@ def make_purchase_invoice(source_name, target_doc=None):
 			"doctype": "Purchase Taxes and Charges",
 			"add_if_empty": True
 		}
-	}, target_doc, postprocess)
-
+	}, target_doc, set_missing_values)
+	
 	return doc

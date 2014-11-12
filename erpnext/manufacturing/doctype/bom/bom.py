@@ -131,7 +131,7 @@ class BOM(Document):
 		self.save()
 
 	def get_bom_unitcost(self, bom_no):
-		bom = frappe.db.sql("""select name, total_variable_cost/quantity as unit_cost from `tabBOM`
+		bom = frappe.db.sql("""select name, total_cost/quantity as unit_cost from `tabBOM`
 			where is_active = 1 and name = %s""", bom_no, as_dict=1)
 		return bom and bom[0]['unit_cost'] or 0
 

@@ -35,6 +35,7 @@ erpnext.accounts.PaymentReconciliationController = frappe.ui.form.Controller.ext
 				};
 			}
 		});
+
 	},
 
 	get_unreconciled_entries: function() {

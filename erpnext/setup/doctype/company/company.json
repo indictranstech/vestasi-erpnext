@@ -280,7 +280,7 @@
   {
    "fieldname": "address", 
    "fieldtype": "Small Text", 
-   "label": "Address", 
+   "label": "Work Address", 
    "oldfieldname": "address", 
    "oldfieldtype": "Small Text", 
    "permlevel": 0, 
@@ -356,7 +356,7 @@
  ], 
  "icon": "icon-building", 
  "idx": 1, 
- "modified": "2014-08-07 05:20:47.711849", 
+ "modified": "2014-09-26 07:14:35.493501", 
  "modified_by": "Administrator", 
  "module": "Setup", 
  "name": "Company", 

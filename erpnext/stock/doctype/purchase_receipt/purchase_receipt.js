@@ -11,6 +11,11 @@ cur_frm.cscript.other_fname = "other_charges";
 
 frappe.provide("erpnext.stock");
 erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend({
+	onload:function(){
+		if (this.frm.doc.docstatus != 1){
+		msgprint(__("Activities that are Mandatory \n 1. Add QTY per Drum/bag  \n 2. Select Serial No \n 3. click on Add Button"));
+		}
+	},	
 	refresh: function() {
 		this._super();
 
@@ -19,6 +24,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 				cur_frm.add_custom_button(__('Make Purchase Invoice'), this.make_purchase_invoice,
 					frappe.boot.doctype_icons["Purchase Invoice"]);
 			}
+			cur_frm.add_custom_button(__('Perform Quality Control'), this.make_quality_checking);
 			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms, "icon-mobile-phone", true);
 
 			this.show_stock_ledger();
@@ -93,6 +99,12 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 	tc_name: function() {
 		this.get_terms();
 	},
+	make_quality_checking:function(){
+		return cur_frm.call({
+			method: "erpnext.stock.custom_methods.make_quality_checking",
+			args: {mtn_details:cur_frm.doc.purchase_receipt_details},
+	})
+	}
 
 });
 
@@ -164,10 +176,28 @@ cur_frm.fields_dict.purchase_receipt_details.grid.get_field("qa_no").get_query =
 cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 	if(cint(frappe.boot.notification_settings.purchase_receipt))
 		cur_frm.email_doc(frappe.boot.notification_settings.purchase_receipt_message);
+	location.reload();
 }
 
 cur_frm.cscript.send_sms = function() {
 	frappe.require("assets/erpnext/js/sms_manager.js");
 	var sms_man = new SMSManager(cur_frm.doc);
+}
+
+cur_frm.cscript.add = function(doc,cdt,cdn) {  //live rohit_sw
+	var d = locals[cdt][cdn]
+	d.sr_no=d.custom_serial_no
+	refresh_field('purchase_receipt_details')
+}
+
+cur_frm.fields_dict.purchase_receipt_details.grid.get_field("custom_serial_no").get_query = function(doc,cdt,cdn) {
+	var d = locals[cdt][cdn]
+	return {
+		filters: {
+			'qty': null,
+			'status':'Available',
+			'item_code':d.item_code
+		}
+	}
 }
 

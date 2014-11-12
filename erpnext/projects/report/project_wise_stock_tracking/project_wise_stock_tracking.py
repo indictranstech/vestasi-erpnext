@@ -1,8 +1,7 @@
 # Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
-import frappe
-from frappe import _
+import frappe 
 
 def execute(filters=None):
 	columns = get_columns()
