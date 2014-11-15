@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 
-from frappe.utils import cstr, flt, fmt_money, formatdate, getdate,cint
+from frappe.utils import cstr, flt, fmt_money, formatdate, getdate
 from frappe import msgprint, _, scrub
 from erpnext.setup.utils import get_company_currency
 
@@ -31,18 +31,35 @@ class JournalVoucher(AccountsController):
 		self.create_remarks()
 		self.set_aging_date()
 		self.set_print_format_fields()
+		self.validate_against_sales_order()
+		self.validate_against_purchase_order()
 
 	def on_submit(self):
 		if self.voucher_type in ['Bank Voucher', 'Contra Voucher', 'Journal Entry']:
 			self.check_reference_date()
 		self.make_gl_entries()
 		self.check_credit_limit()
+		self.update_advance_paid()
+
+	def update_advance_paid(self):
+		advance_paid = frappe._dict()
+		for d in self.get("entries"):
+			if d.is_advance:
+				if d.against_sales_order:
+					advance_paid.setdefault("Sales Order", []).append(d.against_sales_order)
+				elif d.against_purchase_order:
+					advance_paid.setdefault("Purchase Order", []).append(d.against_purchase_order)
+
+		for voucher_type, order_list in advance_paid.items():
+			for voucher_no in list(set(order_list)):
+				frappe.get_doc(voucher_type, voucher_no).set_total_advance_paid()
 
 	def on_cancel(self):
 		from erpnext.accounts.utils import remove_against_link_from_jv
 		remove_against_link_from_jv(self.doctype, self.name, "against_jv")
 
 		self.make_gl_entries(1)
+		self.update_advance_paid()
 
 	def validate_cheque_info(self):
 		if self.voucher_type in ['Bank Voucher']:
@@ -97,16 +114,29 @@ class JournalVoucher(AccountsController):
 							.format(d.against_jv, dr_or_cr))
 
 	def validate_against_sales_invoice(self):
-		for d in self.get("entries"):
-			if d.against_invoice:
-				if d.debit > 0:
-					frappe.throw(_("Row {0}: Debit entry can not be linked with a Sales Invoice")
-						.format(d.idx))
-				if frappe.db.get_value("Sales Invoice", d.against_invoice, "debit_to") != d.account:
-					frappe.throw(_("Row {0}: Account does not match with \
-						Sales Invoice Debit To account").format(d.idx, d.account))
+		payment_against_voucher = self.validate_account_in_against_voucher("against_invoice", "Sales Invoice")
+		self.validate_against_invoice_fields("Sales Invoice", payment_against_voucher)
 
 	def validate_against_purchase_invoice(self):
+		payment_against_voucher = self.validate_account_in_against_voucher("against_voucher", "Purchase Invoice")
+		self.validate_against_invoice_fields("Purchase Invoice", payment_against_voucher)
+
+	def validate_against_sales_order(self):
+		payment_against_voucher = self.validate_account_in_against_voucher("against_sales_order", "Sales Order")
+		self.validate_against_order_fields("Sales Order", payment_against_voucher)
+
+	def validate_against_purchase_order(self):
+		payment_against_voucher = self.validate_account_in_against_voucher("against_purchase_order", "Purchase Order")
+		self.validate_against_order_fields("Purchase Order", payment_against_voucher)
+
+	def validate_account_in_against_voucher(self, against_field, doctype):
+		payment_against_voucher = frappe._dict()
+		field_dict = {'Sales Invoice': "Debit To",
+			'Purchase Invoice': "Credit To",
+			'Sales Order': "Customer",
+			'Purchase Order': "Supplier"
+			}
+
 		for d in self.get("entries"):
 			if d.get(against_field):
 				dr_or_cr = "credit" if against_field in ["against_invoice", "against_sales_order"] \
@@ -206,7 +236,13 @@ class JournalVoucher(AccountsController):
 		for d in self.get('entries'):
 			if d.against_invoice and d.credit:
 				currency = frappe.db.get_value("Sales Invoice", d.against_invoice, "currency")
-				r.append(_("{0} {1} against Invoice {2}").format(currency, fmt_money(flt(d.credit)), d.against_invoice))
+				r.append(_("{0} against Sales Invoice {1}").format(fmt_money(flt(d.credit), currency = currency), \
+					d.against_invoice))
+
+			if d.against_sales_order and d.credit:
+				currency = frappe.db.get_value("Sales Order", d.against_sales_order, "currency")
+				r.append(_("{0} against Sales Order {1}").format(fmt_money(flt(d.credit), currency = currency), \
+					d.against_sales_order))
 
 			if d.against_voucher and d.debit:
 				bill_no = frappe.db.sql("""select bill_no, bill_date, currency
@@ -217,13 +253,17 @@ class JournalVoucher(AccountsController):
 						fmt_money(flt(d.debit)), bill_no[0][0],
 						bill_no[0][1] and formatdate(bill_no[0][1].strftime('%Y-%m-%d'))))
 
+			if d.against_purchase_order and d.debit:
+				currency = frappe.db.get_value("Purchase Order", d.against_purchase_order, "currency")
+				r.append(_("{0} against Purchase Order {1}").format(fmt_money(flt(d.credit), currency = currency), \
+					d.against_purchase_order))
+
 		if self.user_remark:
 			r.append(_("Note: {0}").format(self.user_remark))
 
 		if r:
-			self.remark = ("\n").join(r)
-		else:
-			frappe.msgprint(_("User Remarks is mandatory"), raise_exception=frappe.MandatoryError)
+			self.remark = ("\n").join(r) #User Remarks is not mandatory
+
 
 	def set_aging_date(self):
 		if self.is_opening != 'Yes':
@@ -290,14 +330,18 @@ class JournalVoucher(AccountsController):
 						"against": d.against_account,
 						"debit": flt(d.debit, self.precision("debit", "entries")),
 						"credit": flt(d.credit, self.precision("credit", "entries")),
-						"against_voucher_type": ((d.against_voucher and "Purchase Invoice")
-							or (d.against_invoice and "Sales Invoice")
-							or (d.against_jv and "Journal Voucher")),
-						"against_voucher": d.against_voucher or d.against_invoice or d.against_jv,
+						"against_voucher_type": (("Purchase Invoice" if d.against_voucher else None)
+							or ("Sales Invoice" if d.against_invoice else None)
+							or ("Journal Voucher" if d.against_jv else None)
+							or ("Sales Order" if d.against_sales_order else None)
+							or ("Purchase Order" if d.against_purchase_order else None)),
+						"against_voucher": d.against_voucher or d.against_invoice or d.against_jv
+							or d.against_sales_order or d.against_purchase_order,
 						"remarks": self.remark,
 						"cost_center": d.cost_center
 					})
 				)
+
 		if gl_map:
 			make_gl_entries(gl_map, cancel=cancel, adv_adj=adv_adj)
 

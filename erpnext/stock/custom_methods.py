@@ -14,7 +14,7 @@ from erpnext.controllers.queries import get_match_cond
 #Check weather SUM of qty in all serials is equal to qty of item specified 
 def validate_serial_qty(doc,method):
 	for d in doc.get('mtn_details'):
-		if doc.purpose=='Manufacture/Repack':
+		if doc.purpose in ['Manufacture','Repack']:
 			if d.custom_serial_no and not d.target_batch and not d.qty_per_drum_bag and d.t_warehouse:
 				sr_no=(d.custom_serial_no).splitlines()
 				sr=''
@@ -30,7 +30,7 @@ def validate_serial_qty(doc,method):
 #Check weather Quality Checking is done for serials in serials field
 def validate_serial_qc(doc,method):
 	for d in doc.get('mtn_details'):
-		if doc.purpose=='Manufacture/Repack' and d.s_warehouse:
+		if doc.purpose in ['Manufacture','Repack'] and d.s_warehouse:
 			qc_req=frappe.db.get_value('Item',{"item_code":d.item_code},'inspection_required')
 			if qc_req=='Yes' and d.custom_serial_no:
 				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
@@ -93,8 +93,8 @@ def update_serial_no(doc,method): #Rohit_sw
 	for d in doc.get('delivery_note_details'):
 		if d.custom_serial_no:
 			serial_no=(d.custom_serial_no).splitlines()
+			qty=cstr(d.qty)
 			for sr_no in serial_no:
-				qty=cstr(d.qty)
 				if cint(qty) > 0:
 					qty=flt(qty) - flt(frappe.db.get_value('Serial No',sr_no,'qty'))
 					make_serialgl_dn(d,sr_no,frappe.db.get_value('Serial No',sr_no,'qty'),doc)
@@ -153,7 +153,7 @@ def generate_serial_no_fg(doc,method):
 	previous_source_batch=''
 	#source_batch_no=''
 	for d in doc.get('mtn_details'):
-		if doc.purpose in ['Manufacture/Repack','Material Receipt']:
+		if doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			
 			if d.t_warehouse and d.qty_per_drum_bag:
 				generate_serial_no_per_drum(d,doc)
@@ -161,19 +161,9 @@ def generate_serial_no_fg(doc,method):
 			elif d.t_warehouse and not d.qty_per_drum_bag:
 				generate_serial_no_and_batch(d,previous_source_batch,doc)
 			
-			# elif not d.qty_per_drum_bag and not d.target_batch and d.custom_serial_no and d.t_warehouse:
-			# 	sr_no=(d.custom_serial_no).splitlines()
-			# 	for sr in sr_no:
-			# 		frappe.db.sql("""update `tabSerial No` set batch_no='%s' where name='%s'"""%(source_batch_no,sr))
-			
 			elif d.t_warehouse:
 				validate_serial_no(d)
-			
-			# else:
-			# 	if d.source_batch:
-			# 		source_batch_no=d.source_batch
-			# 	validate_serial_no(d)
-			
+
 			if d.source_batch:
 				previous_source_batch=d.source_batch
 			
@@ -184,20 +174,13 @@ def generate_serial_no_fg(doc,method):
 		
 		elif doc.purpose in ['Sales Return']:
 			validate_serial_no(d)
-			# quantity=d.qty
-			# if d.qty_per_drum_bag:
-			# 	quantity=d.qty_per_drum_bag
-			# issue_serial_no(d,'Available',quantity)
 
 		elif doc.purpose in ['Material Transfer']:
 			validate_serial_no(d)
 			qty=validate_qty_in_serial(d)
 			update_serial_no_warehouse_qty(qty,d,doc)
 
-
-
-		
-		if d.t_warehouse and d.target_batch and doc.purpose=='Manufacture/Repack':
+		if d.t_warehouse and d.target_batch and doc.purpose in ['Manufacture','Repack']:
 			update_batch_status("Yes",d.target_batch)
 
 def update_serial_no_warehouse_qty(qty,d,doc):
@@ -220,7 +203,7 @@ def update_serial_no_warehouse_qty(qty,d,doc):
 
 def update_serial_no_mt_cancel(doc,method):
 	for d in doc.get('mtn_details'):
-		if d.custom_serial_no:
+		if d.custom_serial_no and doc.purpose=='Material Transfer':
 			serials=get_serials_from_field(d)
 			update_amended_serials(serials,doc,d)
 
@@ -319,7 +302,7 @@ def generate_serial_no_per_drum(d,doc):
 		serial_no = (d.custom_serial_no).splitlines()
 		for sn in serial_no:
 			if sn:
-				frappe.db.sql("update `tabSerial No` set finished_good='Yes' qty='%s',serial_no_warehouse='%s' where name='%s'"%(d.qty_per_drum_bag, d.t_warehouse,sn))
+				frappe.db.sql("update `tabSerial No` set finished_good='Yes',qty='%s',serial_no_warehouse='%s' where name='%s'"%(d.qty_per_drum_bag, d.t_warehouse,sn))
 		qty=cint(d.qty) - cint(d.qty_per_drum_bag)
 		serial_no_name=d.serial_no_link + '\n'
 		while cint(qty) > 0:
@@ -415,7 +398,7 @@ def update_serial_no_warehouse(doc,method):
 #update qty to serial no on use
 def update_qty(doc,method):
 	for d in doc.get('mtn_details'):
-		if d.s_warehouse and d.custom_serial_no and doc.purpose in ['Manufacture/Repack','Material Receipt']:
+		if d.s_warehouse and d.custom_serial_no and doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			sr_no=(d.custom_serial_no).split('\n')
 			qty=cint(round(d.qty))
 			for s in sr_no:
@@ -456,7 +439,7 @@ def update_serial_in_warehouse(doc,method):
 
 #get source serial grade and attach it to target serial
 def update_target_serial_grade(doc,method):
-	if doc.purpose=='Manufacture/Repack':
+	if doc.purpose in ['Manufacture','Repack']:
 		grade=''
 		for d in doc.get('mtn_details'):
 			if d.s_warehouse and d.custom_serial_no:
@@ -471,7 +454,7 @@ def update_target_serial_grade(doc,method):
 #track of serials
 def update_serialgl(doc,method):
 	for d in doc.get('mtn_details'):
-		if doc.purpose in ['Manufacture/Repack','Material Receipt']:
+		if doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			if d.custom_serial_no and d.s_warehouse:
 				serial_no=(d.custom_serial_no).split('\n')
 				for sr_no in serial_no:
@@ -496,7 +479,8 @@ def update_batch_status(status,target_batch):
 #return query to get serials
 def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
-	if doc['t_warehouse'] and doc['purpose']=='Manufacture/Repack' and doc['qty_per_drum_bag']:
+	frappe.errprint("hii")
+	if doc['t_warehouse'] and doc['purpose']=='Manufacture' or doc['purpose']=='Repack' and doc['qty_per_drum_bag']:
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s' 
 		and ifnull(qty, 0) = 0
 		and status='Available' and finished_good='No' and
@@ -524,7 +508,7 @@ def generate_serial_no(doc,method):
 	
 	for d in doc.get('purchase_receipt_details'):
 		if not d.sr_no:
-			frappe.throw(_("Select Serial No and Clink on Add for Item: ").format(d.item_code))
+			frappe.throw(_("Select Serial No and Click on Add for Item: ").format(d.item_code))
 
 		elif d.sr_no and d.qty_per_drum_bag:
 			series=frappe.db.get_value('Serial No',{'name':d.custom_serial_no,'status':'Available','item_code':d.item_code},'naming_series')
@@ -623,3 +607,4 @@ def assign_checking(sr_no,item_code):
 					if count!=0:
 						msg="Assign {0} serial no to Quality Checker".format(count)
 		return msg
+

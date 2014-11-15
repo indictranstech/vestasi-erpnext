@@ -22,7 +22,8 @@
   {
    "fieldname": "value", 
    "fieldtype": "Data", 
-   "in_list_view": 1, 
+   "hidden": 1, 
+   "in_list_view": 0, 
    "label": "Acceptance Criteria", 
    "oldfieldname": "value", 
    "oldfieldtype": "Data", 
@@ -31,7 +32,7 @@
  ], 
  "idx": 1, 
  "istable": 1, 
- "modified": "2014-09-19 11:47:48.531922", 
+ "modified": "2014-11-13 12:50:50.705337", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Item Quality Inspection Parameter", 

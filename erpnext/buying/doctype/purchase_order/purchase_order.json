@@ -772,11 +772,7 @@
  "icon": "icon-file-text", 
  "idx": 1, 
  "is_submittable": 1, 
-<<<<<<< HEAD
  "modified": "2014-10-08 14:23:29.718779", 
-=======
- "modified": "2014-09-26 11:19:18.850186", 
->>>>>>> 740508b857ac6a6fd8808c4d2a447e99f4d59299
  "modified_by": "Administrator", 
  "module": "Buying", 
  "name": "Purchase Order", 

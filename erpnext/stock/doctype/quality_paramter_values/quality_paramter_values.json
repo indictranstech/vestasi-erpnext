@@ -199,6 +199,13 @@
    "set_only_once": 0
   }, 
   {
+   "fieldname": "free_si", 
+   "fieldtype": "Float", 
+   "label": "Free Si", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
    "allow_on_submit": 0, 
    "fieldname": "o2", 
    "fieldtype": "Float", 
@@ -225,7 +232,7 @@
  "is_submittable": 0, 
  "issingle": 0, 
  "istable": 1, 
- "modified": "2014-09-26 07:46:06.560378", 
+ "modified": "2014-11-13 13:28:47.977308", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Quality Paramter Values", 
