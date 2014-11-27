@@ -254,14 +254,15 @@ cur_frm.cscript.send_sms = function() {
 
 cur_frm.fields_dict.delivery_note_details.grid.get_field("serial_no_link").get_query = function(doc,cdt,cdn) {
 	var d = locals[cdt][cdn]
+	filter={'serial_no_warehouse':d.warehouse || '','item_code':d.item_code || ''}
 	return {
+		query: "erpnext.stock.custom_methods.get_serial_no_dn",
 		filters:{
-			'item_code':d.item_code,
-			'status':'Available',
-			'qc_status':'Accepted',
-			'serial_no_warehouse':d.warehouse
-		}
+			'doc':filter
 	}
+}
+
+	
 }
 
 //anand

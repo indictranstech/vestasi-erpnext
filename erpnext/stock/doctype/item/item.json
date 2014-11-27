@@ -593,6 +593,37 @@
    "read_only": 0
   }, 
   {
+   "fieldname": "qc", 
+   "fieldtype": "Section Break", 
+   "label": "QC", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "chemical_analysis", 
+   "fieldtype": "Select", 
+   "label": "Chemical Analysis", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "psd_analysis", 
+   "fieldtype": "Select", 
+   "label": "PSD Analysis", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "ssa", 
+   "fieldtype": "Select", 
+   "label": "SSA", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
    "fieldname": "inspection_criteria", 
    "fieldtype": "Section Break", 
    "label": "Inspection Criteria", 
@@ -826,7 +857,7 @@
  "icon": "icon-tag", 
  "idx": 1, 
  "max_attachments": 1, 
- "modified": "2014-11-13 12:54:59.243094", 
+ "modified": "2014-11-24 22:29:15.383177", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Item", 

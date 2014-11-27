@@ -23,7 +23,8 @@ def validate_serial_qty(doc,method):
 						sr+=','+'\''+s+'\''
 					else:
 						sr='\''+s+'\'' 
-				qty=frappe.db.sql("""select SUM(qty) from `tabSerial No` where name in (%s)"""%(sr),as_list=1)
+				qty=frappe.db.sql("""select SUM(qty) from `tabSerial No` 
+					where name in (%s)"""%(sr),as_list=1)
 				if not d.qty==qty[0][0]:
 					frappe.throw(_("Row {0} : Quantity in Serial No {1} must equal to Quantity for Item {2}").format(d.idx,d.custom_serial_no,d.item_code))
 
@@ -32,12 +33,26 @@ def validate_serial_qc(doc,method):
 	for d in doc.get('mtn_details'):
 		if doc.purpose in ['Manufacture','Repack'] and d.s_warehouse:
 			qc_req=frappe.db.get_value('Item',{"item_code":d.item_code},'inspection_required')
-			if qc_req=='Yes' and d.custom_serial_no:
+			ca_req=frappe.db.get_value('Item',{"item_code":d.item_code},'chemical_analysis')
+			psd_req=frappe.db.get_value('Item',{"item_code":d.item_code},'psd_analysis')
+			sa_req=frappe.db.get_value('Item',{"item_code":d.item_code},'ssa')
+			if d.custom_serial_no:
 				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
 				for sr in sr_no:
-					qc_status=frappe.db.get_value('Serial No',{"item_code":d.item_code,"name":sr},'qc_status')
-					if qc_status=='':
-						frappe.throw(_("QC Required for Serial {0} ").format(sr))
+					check_qc_done(ca_req,sa_req,psd_req,sr,d.item_code)
+
+def check_qc_done(qc,sa,psd,sr,item_code):
+	qc_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'qc_status')
+	sa_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'sa_analysis')
+	psd_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'psd_status')
+	if qc=='Yes' and qc_status=='':
+		frappe.throw(_("QC Required for Serial {0} ").format(sr))
+	elif sa=='Yes' and sa_status=='':
+		frappe.throw(_("Surface Anaysis Required for Serial {0} ").format(sr))
+	elif psd=='Yes' and psd_status=='':
+		frappe.throw(_("PSD Anaysis Required for Serial {0} ").format(sr))
+		
+
 
 #check if there is serial no and is valid serial no
 def validate_serial_no(d):
@@ -83,11 +98,18 @@ def validate_qc_status(doc,method):
 		if d.custom_serial_no:#change it to custom_serial_no
 			sr_n=(d.custom_serial_no).splitlines()
 			for sr in sr_n:
+				ca_req=frappe.db.get_value('Item',{"item_code":d.item_code},'chemical_analysis')
+				psd_req=frappe.db.get_value('Item',{"item_code":d.item_code},'psd_analysis')
+				sa_req=frappe.db.get_value('Item',{"item_code":d.item_code},'ssa')
 				qc_status=frappe.db.get_value('Serial No',{"item_code":d.item_code,"name":sr},'qc_status')
-				if qc_status!='Accepted':
+				sa_status=frappe.db.get_value('Serial No',{"item_code":d.item_code,"name":sr},'sa_analysis')
+				psd_status=frappe.db.get_value('Serial No',{"item_code":d.item_code,"name":sr},'psd_status')
+				if ca_req=='Yes' and qc_status!='Accepted':
 					frappe.throw(_("QC Not Accpeted for Serial {0} ").format(sr))
-
-
+				elif psd_req=='Yes' and psd_status!='Accepted':
+					frappe.throw(_("PSD Anaysis Not Accpeted for Serial {0} ").format(sr))
+				elif sa_req=='Yes' and sa_status!='Accepted':
+					frappe.throw(_("SA Anaysis Not Accpeted for Serial {0} ").format(sr))
 
 def update_serial_no(doc,method): #Rohit_sw
 	for d in doc.get('delivery_note_details'):
@@ -160,6 +182,7 @@ def generate_serial_no_fg(doc,method):
 			
 			elif d.t_warehouse and not d.qty_per_drum_bag:
 				generate_serial_no_and_batch(d,previous_source_batch,doc)
+				validate_serial_no(d)
 			
 			elif d.t_warehouse:
 				validate_serial_no(d)
@@ -235,7 +258,9 @@ def get_serials_from_field(d):
 
 def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
 	parent=(name).split('-') or name
-	idx=frappe.db.sql("select ifnull(max(idx),0) from `tabSerial QTY Maintain` where parent='%s'"%(parent[0]),as_list=1)
+	idx=frappe.db.sql("""select ifnull(max(idx),0) 
+		from `tabSerial QTY Maintain` 
+		where parent='%s'"""%(parent[0]),as_list=1)
 	if idx:
 		idx=idx[0][0]
 	else:
@@ -288,7 +313,9 @@ def get_serials_list(serials):
 	return sr 
 
 def get_qty_for_serials(serials):
-	qty=frappe.db.sql("""select ifnull(SUM(qty),0) from `tabSerial No` where name in (%s) """%(serials),as_list=1)
+	qty=frappe.db.sql("""select ifnull(SUM(qty),0) 
+		from `tabSerial No` 
+		where name in (%s) """%(serials),as_list=1)
 	if qty:
 		return qty[0][0]
 	else:
@@ -302,7 +329,9 @@ def generate_serial_no_per_drum(d,doc):
 		serial_no = (d.custom_serial_no).splitlines()
 		for sn in serial_no:
 			if sn:
-				frappe.db.sql("update `tabSerial No` set finished_good='Yes',qty='%s',serial_no_warehouse='%s' where name='%s'"%(d.qty_per_drum_bag, d.t_warehouse,sn))
+				frappe.db.sql("""update `tabSerial No` 
+					set finished_good='Yes',qty='%s',serial_no_warehouse='%s' 
+					where name='%s'"""%(d.qty_per_drum_bag, d.t_warehouse,sn))
 		qty=cint(d.qty) - cint(d.qty_per_drum_bag)
 		serial_no_name=d.serial_no_link + '\n'
 		while cint(qty) > 0:
@@ -314,7 +343,10 @@ def generate_serial_no_per_drum(d,doc):
 				name=create_serial_no(d,series,d.qty_per_drum_bag)
 			serial_no_name+= name + '\n'
 		d.custom_serial_no=serial_no_name
-		frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s' where parent='%s' and item_code='%s'"%(serial_no_name,doc.name,d.item_code))
+		frappe.db.sql("""update `tabStock Entry Detail` 
+			set custom_serial_no='%s' 
+			where parent='%s' 
+			and item_code='%s'"""%(serial_no_name,doc.name,d.item_code))
 
 
 #Create new serial no with current iten and make status available
@@ -434,7 +466,8 @@ def update_serial_in_warehouse(doc,method):
 		if d.t_warehouse and d.custom_serial_no and frappe.db.get_value('Warehouse',d.t_warehouse,'is_flowbin')=='Yes':
 			sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
 			for s in sr_no:
-				frappe.db.sql("update tabWarehouse set serial_no='%s' where name='%s'"%(s,d.t_warehouse))
+				frappe.db.sql("""update tabWarehouse 
+					set serial_no='%s' where name='%s'"""%(s,d.t_warehouse))
 
 
 #get source serial grade and attach it to target serial
@@ -448,7 +481,8 @@ def update_target_serial_grade(doc,method):
 				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
 				if sr_no:
 					for sr in sr_no:
-						frappe.db.sql("""update `tabSerial No` set grade='%s' where name='%s'"""%(grade,sr))
+						frappe.db.sql("""update `tabSerial No` 
+							set grade='%s' where name='%s'"""%(grade,sr))
 					grade=''
 
 #track of serials
@@ -460,26 +494,60 @@ def update_serialgl(doc,method):
 				for sr_no in serial_no:
 					qty=0
 					#change Serial Maintain to Serial Stock
-					serial_no_qty=frappe.db.sql("select qty from `tabSerial Stock` where parent='%s' and document='%s'"%(sr_no,doc.name),as_list=1)
+					serial_no_qty=frappe.db.sql("""select qty from `tabSerial Stock` 
+						where parent='%s' and document='%s'"""%(sr_no,doc.name),as_list=1)
 					if serial_no_qty:
-						frappe.db.sql("update `tabSerial No` set qty=qty+%s,status='Available' where name='%s'"%(serial_no_qty[0][0],sr_no))
+						frappe.db.sql("""update `tabSerial No` 
+							set qty=qty+%s,status='Available' 
+							where name='%s'"""%(serial_no_qty[0][0],sr_no))
 						#change Serial Maintain to Serial Stock
-						frappe.db.sql("delete from `tabSerial Stock` where parent='%s' and document='%s'"%(sr_no,doc.name))
+						frappe.db.sql("""delete from `tabSerial Stock` 
+							where parent='%s' and document='%s'"""%(sr_no,doc.name))
 			else:
 				if d.custom_serial_no:
 					serial_no=(d.custom_serial_no).split('\n')
 					for sr_no in serial_no:
-						frappe.db.sql("delete from `tabSerial No` where name='%s'"%(sr_no))
+						frappe.db.sql("""delete from `tabSerial No` 
+							where name='%s'"""%(sr_no))
 
 #update batch status on use
 def update_batch_status(status,target_batch):
-	frappe.db.sql("update `tabBatch` set used='%s' where name='%s'"%(status,target_batch))
+	frappe.db.sql("""update `tabBatch` 
+		set used='%s' where name='%s'"""%(status,target_batch))
 
+def get_serial_no_dn(doctype,txt,searchfield,start,page_len,filters):
+	doc=filters['doc']
+	cond=get_conditions(doc)
+	frappe.errprint(cond)
+	if cond:
+		return frappe.db.sql("""select name from `tabSerial No` %s and status='Available' and item_code='%s'"""%(cond,doc['item_code']),debug=1) or [['']]
+	else:
+		return [['']]
+
+def get_conditions(doc):
+	con=''
+	qc=frappe.db.sql("""select chemical_analysis,psd_analysis,ssa from `tabItem` 
+		where item_code='%s'"""%(doc['item_code']),as_list=1)
+	if qc[0][0]=='Yes' and qc[0][1]=='Yes' and qc[0][2]=='Yes':
+		con="where qc_status='Accepted' and sa_analysis='Accepted' and psd_status='Accepted'"
+	elif qc[0][0]=='Yes' and qc[0][1]=='Yes':
+		con="where qc_status='Accepted' and psd_status='Accepted'"
+	elif qc[0][0]=='Yes' and qc[0][2]=='Yes':
+		con="where qc_status='Accepted' and sa_analysis='Accepted'"
+	elif qc[0][1]=='Yes' and qc[0][2]=='Yes':
+		con="where sa_analysis='Accepted' and psd_status='Accepted'"
+	elif qc[0][0]=='Yes':
+		con="where qc_status='Accepted'"
+	elif qc[0][1]=='Yes':
+		con="where psd_status='Accepted'"
+	elif qc[0][2]=='Yes':
+		con="where sa_analysis='Accepted'"
+
+	return con
 
 #return query to get serials
 def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
-	frappe.errprint("hii")
 	if doc['t_warehouse'] and doc['purpose']=='Manufacture' or doc['purpose']=='Repack' and doc['qty_per_drum_bag']:
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s' 
 		and ifnull(qty, 0) = 0
@@ -495,13 +563,29 @@ def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 
 #anand
 def get_serial_from(doctype,txt,searchfield,start,page_len,filters):
-	return frappe.db.sql("""select name,item_name,status from `tabSerial No` where item_code='%(item_code)s' 
+	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
+		where item_code='%(item_code)s' 
 		and ifnull(qc_status,'')=''
+		and status='Available'"""%{'item_code':filters['item_code']})
+
+def get_serial_from_psd(doctype,txt,searchfield,start,page_len,filters):
+	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
+		where item_code='%(item_code)s' 
+		and ifnull(psd_status,'')=''
+		and status='Available'"""%{'item_code':filters['item_code']})
+
+def get_serial_from_sa(doctype,txt,searchfield,start,page_len,filters):
+	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
+		where item_code='%(item_code)s' 
+		and ifnull(sa_analysis,'')=''
 		and status='Available'"""%{'item_code':filters['item_code']})
 
 
 def get_source_batch(doctype,txt,searchfield,start,page_len,filters):
-	return frappe.db.sql("""select name from `tabBatch` where warehouse='%s' and name in(select name from `tabSerial No` where qty!=0)"""%(filters.get('warehouse')))
+	return frappe.db.sql("""select name from `tabBatch` 
+		where warehouse='%s' 
+		and name in(select name from `tabSerial No` 
+			where qty!=0)"""%(filters.get('warehouse')))
 
 #method called for purchase reciept is created 
 def generate_serial_no(doc,method):
@@ -588,7 +672,6 @@ def assign_checking(sr_no,item_code):
 	quality_checker=frappe.db.sql("select distinct parent from `tabUserRole` where role in('Quality Checker','System Manager')",as_list=1)
 	if quality_checker:
 		for checker in quality_checker:
-			frappe.errprint(checker[0])
 			count = 0
 			for s in sr_no:
 				if not frappe.db.get_value('ToDo',{'serial_no':s,'owner':checker[0]},'name'):
