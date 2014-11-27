@@ -593,37 +593,6 @@
    "read_only": 0
   }, 
   {
-   "fieldname": "qc", 
-   "fieldtype": "Section Break", 
-   "label": "QC", 
-   "permlevel": 0, 
-   "precision": ""
-  }, 
-  {
-   "fieldname": "chemical_analysis", 
-   "fieldtype": "Select", 
-   "label": "Chemical Analysis", 
-   "options": "\nYes\nNo", 
-   "permlevel": 0, 
-   "precision": ""
-  }, 
-  {
-   "fieldname": "psd_analysis", 
-   "fieldtype": "Select", 
-   "label": "PSD Analysis", 
-   "options": "\nYes\nNo", 
-   "permlevel": 0, 
-   "precision": ""
-  }, 
-  {
-   "fieldname": "ssa", 
-   "fieldtype": "Select", 
-   "label": "SSA", 
-   "options": "\nYes\nNo", 
-   "permlevel": 0, 
-   "precision": ""
-  }, 
-  {
    "fieldname": "inspection_criteria", 
    "fieldtype": "Section Break", 
    "label": "Inspection Criteria", 
@@ -644,6 +613,33 @@
    "permlevel": 0, 
    "read_only": 0, 
    "reqd": 1
+  }, 
+  {
+   "depends_on": "eval:doc.inspection_required==\"Yes\"", 
+   "fieldname": "chemical_analysis", 
+   "fieldtype": "Select", 
+   "label": "Chemical Analysis", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "depends_on": "eval:doc.inspection_required==\"Yes\"", 
+   "fieldname": "psd_analysis", 
+   "fieldtype": "Select", 
+   "label": "PSD Analysis", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "depends_on": "eval:doc.inspection_required==\"Yes\"", 
+   "fieldname": "ssa", 
+   "fieldtype": "Select", 
+   "label": "SSA", 
+   "options": "\nYes\nNo", 
+   "permlevel": 0, 
+   "precision": ""
   }, 
   {
    "depends_on": "eval:doc.inspection_required==\"Yes\"", 
@@ -857,7 +853,7 @@
  "icon": "icon-tag", 
  "idx": 1, 
  "max_attachments": 1, 
- "modified": "2014-11-24 22:29:15.383177", 
+ "modified": "2014-11-27 12:53:07.859828", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Item", 

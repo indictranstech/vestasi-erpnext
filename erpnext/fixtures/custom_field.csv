@@ -66,7 +66,6 @@ Buisness Address","","address",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Purchase Receipt Item-qty_per_drum_bag""","Purchase Receipt Item","Float","Qty Per Drum Bag","rejected_qty","","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Purchase Receipt Item-sr_no""","Purchase Receipt Item","Text","Serial no","add","","","","sr_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
 "","""QC Serial-free_si""","QC Serial","Float","Free Si","alpha","","","","free_si",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""QC Serial-ssa""","QC Serial","Float","SSA","mesh_625","","","","ssa",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-amend_qty""","Serial No","Int","Amend Qty","make_from","","","","amend_qty",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-batch_no""","Serial No","Data","Batch No","is_repacked","","","","batch_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-finished_good""","Serial No","Select","Finished Good","batch_no","","
@@ -81,6 +80,11 @@ No","","is_repacked",0,0,0,0,"","",0,"",0,0,0,0,0,0
 SN
 SM
 RM","","naming_series",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-psd_grade""","Serial No","Data","psd_grade","","","","","psd_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-psd_status""","Serial No","Select","psd_status","sa_analysis","","
+Accepted
+Rejected","","psd_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qc_grade""","Serial No","Data","qc_grade","grade","","","","qc_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-qc_status""","Serial No","Select","QC Status","company","","
 Accepted
 Rejected","","qc_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
@@ -89,6 +93,10 @@ Rejected","","qc_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-reusable_item""","Serial No","Select","Reusable Item","serial_no_warehouse","","
 No
 Yes","","reusable_item",0,0,0,0,"","",1,"",1,0,0,0,0,0
+"","""Serial No-sa_analysis""","Serial No","Select","sa_analysis","qc_status","","
+Accepted
+Rejected","","sa_analysis",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-sa_grade""","Serial No","Data","sa_grade","grade","","","","sa_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-serial_no_warehouse""","Serial No","Link","Serial No Warehouse","brand","","Warehouse","","serial_no_warehouse",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-serial_qty_maintain""","Serial No","Table","Serial QTY Maintain","serial_stock","","Serial QTY Maintain","","serial_qty_maintain",0,0,0,0,"","",1,"",0,0,0,0,0,0
 "","""Serial No-serial_stock""","Serial No","Table","Serial Stock","grade","","Serial Stock","","serial_stock",0,0,0,0,"","",0,"",0,0,0,0,0,0
