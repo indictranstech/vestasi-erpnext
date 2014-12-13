@@ -157,7 +157,7 @@ class SalesOrder(SellingController):
 
 		self.check_credit(self.grand_total)
 
-		frappe.get_doc('Authorization Control').validate_approving_authority(self.doctype, self.grand_total, self)
+		frappe.get_doc('Authorization Control').validate_approving_authority(self.doctype, self.company, self.grand_total, self)
 
 		self.update_prevdoc_status('submit')
 		frappe.db.set(self, 'status', 'Submitted')
@@ -275,6 +275,14 @@ def make_material_request(source_name, target_doc=None):
 @frappe.whitelist()
 def make_delivery_note(source_name, target_doc=None):
 	def set_missing_values(source, target):
+		if source.po_no:
+			if target.po_no:
+				target_po_no = target.po_no.split(", ")
+				target_po_no.append(source.po_no)
+				target.po_no = ", ".join(list(set(target_po_no))) if len(target_po_no) > 1 else target_po_no[0]
+			else:
+				target.po_no = source.po_no
+
 		target.ignore_pricing_rule = 1
 		target.run_method("set_missing_values")
 		target.run_method("calculate_taxes_and_totals")
@@ -351,6 +359,7 @@ def make_sales_invoice(source_name, target_doc=None):
 			"add_if_empty": True
 		}
 	}, target_doc, set_missing_values)
+
 
 	return doclist
 
