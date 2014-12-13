@@ -79,7 +79,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 					function() { me.make_return_jv(); }, frappe.boot.doctype_icons["Journal Voucher"]);
 				this.add_excise_button();
 			}
-			 if(this.frm.doc.purpose=='Manufacture/Repack'){
+			 if(this.frm.doc.purpose=='Manufacture' || this.frm.doc.purpose=='Repack'){
                                 this.frm.add_custom_button(__("Perform Quality Control"), function() {
                                          me.make_quality_checking();
                                 });

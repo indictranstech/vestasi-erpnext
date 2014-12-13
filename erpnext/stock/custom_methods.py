@@ -112,6 +112,7 @@ def validate_qc_status(doc,method):
 					frappe.throw(_("SA Anaysis Not Accpeted for Serial {0} ").format(sr))
 
 def update_serial_no(doc,method): #Rohit_sw
+	frappe.errprint("in the sn")
 	for d in doc.get('delivery_note_details'):
 		if d.custom_serial_no:
 			serial_no=(d.custom_serial_no).splitlines()
@@ -120,7 +121,7 @@ def update_serial_no(doc,method): #Rohit_sw
 				if cint(qty) > 0:
 					qty=flt(qty) - flt(frappe.db.get_value('Serial No',sr_no,'qty'))
 					make_serialgl_dn(d,sr_no,frappe.db.get_value('Serial No',sr_no,'qty'),doc)
-					frappe.db.sql("update `tabSerial No` set qty=0.0,status='Delivered' where name='%s'"%(sr_no))
+					frappe.db.sql("update `tabSerial No` set qty=0.0,status='Available' where name='%s'"%(sr_no))
 					if (cint(0)-cint(qty))>0:
 						amend_serial_no(d,sr_no,qty)
 
@@ -668,26 +669,111 @@ def make_quality_checking(mtn_details):
 
 @frappe.whitelist()
 def assign_checking(sr_no,item_code):
-	msg='This serial no is already assigned'
-	quality_checker=frappe.db.sql("select distinct parent from `tabUserRole` where role in('Quality Checker','System Manager')",as_list=1)
-	if quality_checker:
-		for checker in quality_checker:
-			count = 0
-			for s in sr_no:
-				if not frappe.db.get_value('ToDo',{'serial_no':s,'owner':checker[0]},'name'):
-					to_do=frappe.new_doc('ToDo')
-					to_do.reference_type='Quality Checking'
-					to_do.role='Quality Checker'
-					to_do.owner=checker[0]
-					to_do.assigned_by=frappe.session.user
-					to_do.description='Do QC for Serial No %s'%(s)
-					to_do.status='Open'
-					to_do.priority='Medium'
-					to_do.serial_no=s
-					to_do.item_code=item_code
-					to_do.save()
-					count+=1
-					if count!=0:
-						msg="Assign {0} serial no to Quality Checker".format(count)
-		return msg
+	inspection=frappe.db.sql("""select inspection_required 
+		from `tabItem` where name='%s'"""%(item_code),as_dict=1)
+	if inspection[0]['inspection_required']=='Yes':
+		quality_tests=frappe.db.sql("""select chemical_analysis,psd_analysis, ssa 
+			from `tabItem` where name='%s'"""%(item_code),as_dict=1)
+		for test in quality_tests:
+			if test['chemical_analysis']=='Yes':
+				quality_checker=frappe.db.sql("""select distinct parent 
+					from `tabUserRole` 
+					where role in('Chemical Analyst','System Manager')""",as_list=1)
+				if quality_checker:
+					for checker in quality_checker:
+						make_ToDo(sr_no,item_code,checker,'Chemical Analyst','Quality Checking')
+			if test['psd_analysis']=='Yes':
+				psd_checker=frappe.db.sql("""select distinct parent 
+					from `tabUserRole`
+					where role in('PSD Analyst','System Manager')""",as_list=1)
+				if psd_checker:
+					for psd in psd_checker:
+						make_ToDo(sr_no,item_code,psd,'PSD Analyst','PSD Analysis')
+			if test['ssa']=='Yes':
+				ssa_checker=frappe.db.sql("""select distinct parent 
+					from `tabUserRole` 
+					where role in('SSA Analyst','System Manager')""",as_list=1)
+				if ssa_checker:
+					for ssa in ssa_checker:
+						make_ToDo(sr_no,item_code,ssa,'SSA Analyst','Surface  Area Analysis')
+
+
+
+def make_ToDo(sr_no,item_code,checker,role,reference_doc):
+	count = 0
+	for s in sr_no:
+		if not frappe.db.get_value('ToDo',{'serial_no':s,'owner':checker[0],'reference_type':reference_doc},'name'):
+			to_do=frappe.new_doc('ToDo')
+			to_do.reference_type=reference_doc
+			to_do.role=role
+			to_do.owner=checker[0]
+			to_do.assigned_by=frappe.session.user
+			to_do.description='Do QC for Serial No %s'%(s)
+			to_do.status='Open'
+			to_do.priority='Medium'
+			to_do.serial_no=s
+			to_do.item_code=item_code
+			to_do.save()
+			count+=1
+			if count!=0:
+				msg="Assign {0} serial no to SSA Analyst".format(count)
+			frappe.errprint("TODO done")	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def assign_checking(sr_no,item_code):
+# 	frappe.errprint(item_code)
+# 	inspection=frappe.db.sql("select inspection_required from `tabItem` where name='%s'"%(item_code),as_dict=1)
+# 	frappe.errprint(inspection[0]['inspection_required'])
+# 	if inspection[0]['inspection_required']=='Yes':
+# 		quality_tests=frappe.db.sql("select chemical_analysis,psd_analysis, ssa from `tabItem` where name='%s'"%(item_code),as_dict=1)
+# 		frappe.errprint(quality_tests[0]['chemical_analysis'])
+# 		if quality_tests[0]['chemical_analysis']=='Yes':
+# 			msg='This serial no is already assigned'
+# 			quality_checker=frappe.db.sql("select distinct parent from `tabUserRole` where role in('Chemical Analyst','System Manager')",as_list=1)
+# 			if quality_checker:
+# 				for checker in quality_checker:
+# 					count = 0
+# 					for s in sr_no:
+# 						if not frappe.db.get_value('ToDo',{'serial_no':s,'owner':checker[0]},'name'):
+# 							to_do=frappe.new_doc('ToDo')
+# 							to_do.reference_type='Quality Checking'
+# 							to_do.role='Chemical Analyst'
+# 							to_do.owner=checker[0]
+# 							to_do.assigned_by=frappe.session.user
+# 							to_do.description='Do QC for Serial No %s'%(s)
+# 							to_do.status='Open'
+# 							to_do.priority='Medium'
+# 							to_do.serial_no=s
+# 							to_do.item_code=item_code
+# 							to_do.save()
+# 							count+=1
+# 							if count!=0:
+# 								msg="Assign {0} serial no to Quality Checker".format(count)
+# 				# return msg					
 
