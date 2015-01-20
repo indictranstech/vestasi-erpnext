@@ -1,1 +1,0 @@
-Support Ticket volume, performance over time.

@@ -31,6 +31,27 @@
    "reqd": 1
   }, 
   {
+   "fieldname": "mode_of_delivery", 
+   "fieldtype": "Data", 
+   "label": "Mode Of Delivery", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "date_of_delivery", 
+   "fieldtype": "Date", 
+   "label": "Date Of Delivery", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
+   "fieldname": "terms_of_delivery", 
+   "fieldtype": "Data", 
+   "label": "Terms Of Delivery", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
    "fieldname": "column_break1", 
    "fieldtype": "Column Break", 
    "permlevel": 0, 
@@ -46,6 +67,14 @@
    "print_hide": 1, 
    "read_only": 0, 
    "reqd": 1
+  }, 
+  {
+   "fieldname": "delivery_address", 
+   "fieldtype": "Small Text", 
+   "hidden": 1, 
+   "label": "Delivery Address", 
+   "permlevel": 0, 
+   "precision": ""
   }, 
   {
    "fieldname": "section_break0", 
@@ -197,7 +226,7 @@
  "icon": "icon-suitcase", 
  "idx": 1, 
  "is_submittable": 1, 
- "modified": "2014-11-13 16:50:50.423299", 
+ "modified": "2015-01-02 13:12:18.996485", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Packing Slip", 

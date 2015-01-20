@@ -10,6 +10,7 @@ from frappe import msgprint, _
 import frappe.defaults
 from frappe.model.mapper import get_mapped_doc
 from erpnext.stock.utils import update_bin
+from erpnext.utilities.address_and_contact import load_address_and_contact
 from erpnext.controllers.selling_controller import SellingController
 
 form_grid_templates = {
@@ -37,7 +38,16 @@ class DeliveryNote(SellingController):
 			'overflow_type': 'delivery'
 		}]
 
+	def get_abbr(self):
+		c_abbr=frappe.db.sql("select customer_abbreviation from `tabCustomer` where name='%s'"%(self.customer),as_list=1)
+		if c_abbr:
+			abbreviation = c_abbr[0][0]
+			return {
+				'abbreviation': abbreviation
+			}
+
 	def onload(self):
+		load_address_and_contact(self, "customer")
 		billed_qty = frappe.db.sql("""select sum(ifnull(qty, 0)) from `tabSales Invoice Item`
 			where docstatus=1 and delivery_note=%s""", self.name)
 		if billed_qty:
@@ -80,6 +90,9 @@ class DeliveryNote(SellingController):
 					 frappe.throw(_("Sales Order required for Item {0}").format(d.item_code))
 
 	def validate(self):
+		frappe.errprint(self.customer_address)
+
+
 		super(DeliveryNote, self).validate()
 
 		from erpnext.utilities import validate_status

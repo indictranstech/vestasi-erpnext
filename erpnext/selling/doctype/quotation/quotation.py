@@ -25,6 +25,14 @@ class Quotation(SellingController):
 		self.validate_uom_is_integer("stock_uom", "qty")
 		self.validate_quotation_to()
 
+	def get_abbr(self):
+		c_abbr=frappe.db.sql("select customer_abbreviation from `tabCustomer` where name='%s'"%(self.customer),as_list=1)
+		if c_abbr:
+			abbreviation = c_abbr[0][0]
+			return {
+				'abbreviation': abbreviation
+			}
+
 	def has_sales_order(self):
 		return frappe.db.get_value("Sales Order Item", {"prevdoc_docname": self.name, "docstatus": 1})
 

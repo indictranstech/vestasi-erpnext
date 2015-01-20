@@ -13,6 +13,8 @@ cur_frm.pformat.print_heading = 'Invoice';
 {% include 'accounts/doctype/sales_taxes_and_charges_master/sales_taxes_and_charges_master.js' %}
 {% include 'accounts/doctype/sales_invoice/pos.js' %}
 
+cur_frm.add_fetch('customer', 'customer_abbreviation', 'customer_abbreviation');
+
 frappe.provide("erpnext.accounts");
 erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.extend({
 	onload: function() {
@@ -221,6 +223,14 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.accounts.SalesInvoiceController({frm: cur_frm}));
+
+cur_frm.cscript.onload = function(doc, cdt, cdn) {
+        get_server_fields('get_abbr','','',doc, cdt, cdn, 1, function(r){
+                cur_frm.set_value('customer_abbreviation', r.abbreviation);
+                refresh_field('customer_abbreviation');
+        })
+
+}
 
 // Hide Fields
 // ------------

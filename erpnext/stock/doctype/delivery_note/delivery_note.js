@@ -11,11 +11,14 @@ cur_frm.cscript.sales_team_fname = "sales_team";
 {% include 'accounts/doctype/sales_taxes_and_charges_master/sales_taxes_and_charges_master.js' %}
 {% include 'accounts/doctype/sales_invoice/pos.js' %}
 
+cur_frm.add_fetch('customer', 'customer_abbreviation', 'customer_abbreviation');
+
 frappe.provide("erpnext.stock");
 frappe.provide("erpnext.stock.delivery_note");
 erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend({
 	refresh: function(doc, dt, dn) {
 		this._super();
+		erpnext.utils.render_address_and_contact(cur_frm)
 
 		if(doc.__onload && !doc.__onload.billing_complete && doc.docstatus==1) {
 			// show Make Invoice button only if Delivery Note is not created from Sales Invoice
@@ -94,6 +97,14 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.stock.DeliveryNoteController({frm: cur_frm}));
+
+cur_frm.cscript.onload = function(doc, cdt, cdn) {
+        get_server_fields('get_abbr','','',doc, cdt, cdn, 1, function(r){
+                cur_frm.set_value('customer_abbreviation', r.abbreviation);
+                refresh_field('customer_abbreviation');
+        })
+
+}
 
 cur_frm.cscript.new_contact = function(){
 	tn = frappe.model.make_new_doc_and_get_name('Contact');

@@ -59,6 +59,14 @@
    "read_only": 1
   }, 
   {
+   "fieldname": "customer_abbreviation", 
+   "fieldtype": "Data", 
+   "label": "Customer Abbreviation", 
+   "permlevel": 0, 
+   "precision": "", 
+   "read_only": 1
+  }, 
+  {
    "depends_on": "customer", 
    "fieldname": "customer_address", 
    "fieldtype": "Link", 
@@ -1013,7 +1021,7 @@
  "idx": 1, 
  "in_create": 0, 
  "is_submittable": 1, 
- "modified": "2014-12-12 12:36:59.262500", 
+ "modified": "2015-01-20 11:26:28.060325", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Delivery Note", 

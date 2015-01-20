@@ -41,6 +41,29 @@ def validate_serial_qc(doc,method):
 				for sr in sr_no:
 					check_qc_done(ca_req,sa_req,psd_req,sr,d.item_code)
 
+def update_stock_name(doc,method):
+	if doc.purpose =='Repack':
+		for d in doc.get('mtn_details'):
+			if d.t_warehouse and d.custom_serial_no:
+				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
+				for sr in sr_no:
+					append_ste(d,sr,doc)
+					
+
+def append_ste(d,serial_no,doc):
+	bi =frappe.get_doc("Serial No", serial_no)
+	ch = bi.append("serial_stock")
+	ch.document=doc.name
+	ch.item_code=d.item_code
+	ch.serial_no=serial_no
+	ch.qty=cstr(d.qty)
+	ch.warehouse=d.t_warehouse
+	ch.parent=serial_no
+	ch.parentfield='serial_stock'
+	ch.parenttype='Serial No'
+	bi.save(ignore_permissions=True)
+			
+
 def check_qc_done(qc,sa,psd,sr,item_code):
 	qc_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'qc_status')
 	sa_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'sa_analysis')
@@ -56,7 +79,7 @@ def check_qc_done(qc,sa,psd,sr,item_code):
 
 #check if there is serial no and is valid serial no
 def validate_serial_no(d):
-
+	frappe.errprint("in validat")
 	if not d.custom_serial_no and frappe.db.get_value('Item',d.item_code,'serial_no')=='Yes':
 		frappe.throw(_("Row {0}: Enter serial no for Item {1}").format(d.idx,d.item_code))
 	elif d.custom_serial_no:
@@ -420,7 +443,8 @@ def issue_serial_no(d,status,qty):
 
 #Update Serial Warehouse in serial no on material transfer
 def update_serial_no_warehouse(doc,method):
-	if doc.purpose=='Material Transfer':
+	frappe.errprint("in the update_serial_no_warehouse ")
+	if doc.purpose=='Material Transfer'  :
 		for item in doc.get("mtn_details"):
 			validate_serial_no(item)
 			if item.custom_serial_no:
@@ -430,6 +454,7 @@ def update_serial_no_warehouse(doc,method):
 
 #update qty to serial no on use
 def update_qty(doc,method):
+	frappe.errprint("in the update_qty")
 	for d in doc.get('mtn_details'):
 		if d.s_warehouse and d.custom_serial_no and doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			sr_no=(d.custom_serial_no).split('\n')
@@ -438,16 +463,19 @@ def update_qty(doc,method):
 				if s:
 					serial_qty=frappe.db.get_value('Serial No',s,'qty')
 					if qty >= serial_qty:
+						frappe.errprint("in the 2nd if")
 						qty= cint(qty) - cint(serial_qty)
 						frappe.db.sql("update `tabSerial No` set qty=qty-%s where name='%s'"%(cint(serial_qty),s))
-						make_serialgl(d,s,serial_qty,doc)
+						# make_serialgl(d,s,serial_qty,doc)
 					elif qty > 0:
+						frappe.errprint("in the elif")
 						frappe.db.sql("update `tabSerial No` set qty=qty-%s where name='%s'"%((cint(qty)),s))
 						make_serialgl(d,s,qty,doc)
 						qty= cint(qty) - cint(serial_qty)
 
-#keep track of serials used in stock entry
+# #keep track of serials used in stock entry
 def make_serialgl(d,serial_no,qty,doc):
+	frappe.errprint("in the make_serialgl")
 	#change Serial Maintain to Serial Stock
 	bi=frappe.new_doc('Serial Stock')
 	bi.document=doc.name
@@ -473,7 +501,8 @@ def update_serial_in_warehouse(doc,method):
 
 #get source serial grade and attach it to target serial
 def update_target_serial_grade(doc,method):
-	if doc.purpose in ['Manufacture','Repack']:
+	if doc.purpose in ['Manufacture']:
+		frappe.errprint("in the update target")
 		grade=''
 		for d in doc.get('mtn_details'):
 			if d.s_warehouse and d.custom_serial_no:
@@ -485,6 +514,11 @@ def update_target_serial_grade(doc,method):
 						frappe.db.sql("""update `tabSerial No` 
 							set grade='%s' where name='%s'"""%(grade,sr))
 					grade=''
+
+
+
+
+
 
 #track of serials
 def update_serialgl(doc,method):

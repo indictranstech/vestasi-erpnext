@@ -1,6 +1,6 @@
 // Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
-
+frappe.provide("erpnext");
 cur_frm.cscript.onload = function(doc, dt, dn) {
 	cur_frm.cscript.load_defaults(doc, dt, dn);
 }

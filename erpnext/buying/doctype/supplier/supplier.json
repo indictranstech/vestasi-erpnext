@@ -38,6 +38,13 @@
    "reqd": 1
   }, 
   {
+   "fieldname": "abbr", 
+   "fieldtype": "Data", 
+   "label": "supplier Abbriviation", 
+   "permlevel": 0, 
+   "precision": ""
+  }, 
+  {
    "fieldname": "column_break0", 
    "fieldtype": "Column Break", 
    "permlevel": 0, 
@@ -186,7 +193,7 @@
  ], 
  "icon": "icon-user", 
  "idx": 1, 
- "modified": "2014-08-26 04:55:32.004458", 
+ "modified": "2015-01-14 12:27:37.496512", 
  "modified_by": "Administrator", 
  "module": "Buying", 
  "name": "Supplier", 

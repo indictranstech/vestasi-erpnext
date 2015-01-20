@@ -27,6 +27,14 @@ class SalesOrder(SellingController):
 			if getdate(self.transaction_date) > getdate(self.delivery_date):
 				frappe.throw(_("Expected Delivery Date cannot be before Sales Order Date"))
 
+	def get_abbr(self):
+		c_abbr=frappe.db.sql("select customer_abbreviation from `tabCustomer` where name='%s'"%(self.customer),as_list=1)
+		if c_abbr:
+			abbreviation = c_abbr[0][0]
+			return {
+				'abbreviation': abbreviation
+			}
+
 	def validate_po(self):
 		# validate p.o date v/s delivery date
 		if self.po_date and self.delivery_date and getdate(self.po_date) > getdate(self.delivery_date):

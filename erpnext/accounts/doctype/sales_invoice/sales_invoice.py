@@ -75,6 +75,14 @@ class SalesInvoice(SellingController):
 		self.validate_multiple_billing("Delivery Note", "dn_detail", "amount",
 			"delivery_note_details")
 
+	def get_abbr(self):
+		c_abbr=frappe.db.sql("select customer_abbreviation from `tabCustomer` where name='%s'"%(self.customer),as_list=1)
+		if c_abbr:
+			abbreviation = c_abbr[0][0]
+			return {
+				'abbreviation': abbreviation
+			}
+
 	def on_submit(self):
 		super(SalesInvoice, self).on_submit()
 

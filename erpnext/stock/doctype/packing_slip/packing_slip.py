@@ -18,14 +18,20 @@ class PackingSlip(Document):
 
 			It is necessary to validate case nos before checking quantity
 		"""
-		self.validate_delivery_note()
+		#self.validate_delivery_note()
 		self.validate_items_mandatory()
 		self.validate_case_nos()
 		self.validate_qty()
+		self.get_address()
 
 		from erpnext.utilities.transaction_base import validate_uom_is_integer
 		validate_uom_is_integer(self, "stock_uom", "qty")
 		validate_uom_is_integer(self, "weight_uom", "net_weight")
+
+	def get_address(self):
+		self.delivery_address=frappe.db.get_value("Delivery Note",self.delivery_note, "address_display")
+
+	
 
 	def validate_delivery_note(self):
 		"""

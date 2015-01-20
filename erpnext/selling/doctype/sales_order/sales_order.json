@@ -57,9 +57,17 @@
    "read_only": 1
   }, 
   {
+   "fieldname": "customer_abbreviation", 
+   "fieldtype": "Data", 
+   "label": "Customer Abbreviation", 
+   "permlevel": 0, 
+   "precision": "", 
+   "read_only": 1
+  }, 
+  {
    "fieldname": "address_display", 
    "fieldtype": "Small Text", 
-   "hidden": 1, 
+   "hidden": 0, 
    "label": "Address", 
    "permlevel": 0, 
    "read_only": 1
@@ -211,7 +219,7 @@
   {
    "fieldname": "shipping_address", 
    "fieldtype": "Small Text", 
-   "hidden": 1, 
+   "hidden": 0, 
    "in_filter": 0, 
    "label": "Shipping Address", 
    "permlevel": 0, 
@@ -1021,7 +1029,7 @@
  "idx": 1, 
  "is_submittable": 1, 
  "issingle": 0, 
- "modified": "2014-12-12 12:35:09.652211", 
+ "modified": "2015-01-20 11:25:42.489566", 
  "modified_by": "Administrator", 
  "module": "Selling", 
  "name": "Sales Order", 

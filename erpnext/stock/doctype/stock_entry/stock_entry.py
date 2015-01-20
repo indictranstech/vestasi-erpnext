@@ -53,10 +53,19 @@ class StockEntry(StockController):
 		self.validate_fiscal_year()
 		self.validate_valuation_rate()
 		self.set_total_amount()
+		# self.update_stock_serial_name()
 
+	
+	def update_stock_serial_name(self):
+		if self.purpose=='Repack':
+			for d in self.get('mtn_details'):
+				frappe.db.sql("""update `tabSerial No` set stock_entry_name='%s' where name='%s'"""%(self.name,d.custom_serial_no),debug=1)
+				frappe.errprint("Done")
 
 	def on_submit(self):
+		self.update_stock_serial_name()
 		self.update_stock_ledger()
+
 
 		from erpnext.stock.doctype.serial_no.serial_no import update_serial_nos_after_submit
 		update_serial_nos_after_submit(self, "mtn_details")

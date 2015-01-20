@@ -12,6 +12,8 @@ cur_frm.cscript.sales_team_fname = "sales_team";
 {% include 'accounts/doctype/sales_taxes_and_charges_master/sales_taxes_and_charges_master.js' %}
 {% include 'accounts/doctype/sales_invoice/pos.js' %}
 
+cur_frm.add_fetch('customer', 'customer_abbreviation', 'customer_abbreviation');
+
 erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 	onload: function(doc, dt, dn) {
 		var me = this;
@@ -126,6 +128,14 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 });
 
 cur_frm.script_manager.make(erpnext.selling.QuotationController);
+
+cur_frm.cscript.onload = function(doc, cdt, cdn) {
+        get_server_fields('get_abbr','','',doc, cdt, cdn, 1, function(r){
+                cur_frm.set_value('customer_abbreviation', r.abbreviation);
+                refresh_field('customer_abbreviation');
+        })
+
+}
 
 cur_frm.fields_dict.lead.get_query = function(doc,cdt,cdn) {
 	return{	query: "erpnext.controllers.queries.lead_query" }

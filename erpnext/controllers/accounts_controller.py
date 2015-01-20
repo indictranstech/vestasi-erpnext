@@ -426,7 +426,7 @@ class AccountsController(TransactionBase):
 				and ifnull(against_sales_order, '') in (%s)
 				group by parent, against_sales_order""" %
 				("against_" + against_order_field, '%s', ', '.join(['%s']*len(order_list))),
-				tuple([account] + order_list), as_dict=1)
+				tuple([account] + order_list), as_dict=1,debug=True)
 
 			if jv_against_order:
 				order_jv_map = {}
