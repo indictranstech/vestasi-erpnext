@@ -8,6 +8,8 @@ from frappe.utils import cint, cstr, flt
 from frappe import _
 from frappe.model.document import Document
 
+from operator import itemgetter
+
 class BOM(Document):
 
 	def autoname(self):
@@ -56,6 +58,9 @@ class BOM(Document):
 			docstatus, description, is_sub_contracted_item, stock_uom, default_bom,
 			last_purchase_rate, is_manufactured_item
 			from `tabItem` where name=%s""", item_code, as_dict = 1)
+
+		if not item:
+			frappe.throw(_("Item: {0} does not exist in the system").format(item_code))
 
 		return item
 
@@ -357,7 +362,7 @@ class BOM(Document):
 		"Add items to Flat BOM table"
 		frappe.db.sql("""delete from `tabBOM Explosion Item` where parent=%s""", self.name)
 		self.set('flat_bom_details', [])
-		for d in self.cur_exploded_items:
+		for d in sorted(self.cur_exploded_items, key=itemgetter(0)):
 			ch = self.append('flat_bom_details', {})
 			for i in self.cur_exploded_items[d].keys():
 				ch.set(i, self.cur_exploded_items[d][i])

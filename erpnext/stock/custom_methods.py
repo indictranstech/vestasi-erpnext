@@ -233,6 +233,7 @@ def generate_serial_no_fg(doc,method):
 			update_batch_status("Yes",d.target_batch)
 
 def update_serial_no_warehouse_qty(qty,d,doc):
+	frappe.errprint("In update serial no warehouse qty")
 	sr_no=(d.custom_serial_no).splitlines()
 	qty_temp=cint(d.qty)
 	for sr in sr_no:
@@ -251,6 +252,7 @@ def update_serial_no_warehouse_qty(qty,d,doc):
 			amend_serial_no_mt(sr,rem_qty,serial_qty,sn.name,d,qty_temp,doc)
 
 def update_serial_no_mt_cancel(doc,method):
+	frappe.errprint("in update serial no")
 	for d in doc.get('mtn_details'):
 		if d.custom_serial_no and doc.purpose=='Material Transfer':
 			serials=get_serials_from_field(d)
@@ -261,6 +263,7 @@ def update_amended_serials(serials,doc,d):
 		change_serial_details(sn,doc,d)
 
 def change_serial_details(sn,doc,d):
+	frappe.errprint("in change serial no")
 	amended_qty=frappe.db.sql("""select qty,amended_serial_no from `tabSerial QTY Maintain` where parent='%s' and document='%s'"""%(sn,doc.name))
 	srn=frappe.get_doc("Serial No",sn)
 	if amended_qty:
@@ -283,6 +286,7 @@ def get_serials_from_field(d):
 
 
 def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
+	frappe.errprint("in amend serial qty")
 	parent=(name).split('-') or name
 	idx=frappe.db.sql("""select ifnull(max(idx),0) 
 		from `tabSerial QTY Maintain` 
@@ -295,6 +299,7 @@ def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
 	update_maintain_serial(name,sr,serial_qty,rem_qty,idx,doc,parent[0])
 
 def create_new_serial_no(idx,sr,rem_qty,d,parent):
+	frappe.errprint("In new serial no")
 	sn=frappe.new_doc('Serial No')
 	sn.serial_no=parent+'-'+cstr(idx+1)
 	sn.serial_no_warehouse=d.s_warehouse
@@ -306,6 +311,7 @@ def create_new_serial_no(idx,sr,rem_qty,d,parent):
 	return sn.name
 
 def update_maintain_serial(name,sr,serial_qty,qty_temp,idx,doc,parent):
+	frappe.errprint("In update maintain serial")
 	sqm=frappe.new_doc("Serial QTY Maintain")
 	sqm.amended_serial_no=name
 	sqm.idx=cint(idx)+1
