@@ -461,7 +461,7 @@
    "permlevel": 0, 
    "print_hide": 0
   }, 
-  {
+ {
    "fieldname": "base_discount_amount", 
    "fieldtype": "Currency", 
    "label": "Discount Amount (Company Currency)", 
@@ -470,7 +470,7 @@
    "precision": "", 
    "print_hide": 1, 
    "read_only": 1
-  }, 
+  },
   {
    "fieldname": "totals", 
    "fieldtype": "Section Break", 
