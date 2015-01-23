@@ -60,6 +60,3 @@ def execute(filters=None):
 		"Repeat Customer Revenue:Currency:150", 
 		"Total Revenue:Currency:150"
 	], out
-		
-		
-		

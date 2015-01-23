@@ -137,6 +137,16 @@
    "read_only": 1
   }, 
   {
+   "default": "fst", 
+   "fieldname": "flag", 
+   "fieldtype": "Data", 
+   "hidden": 1, 
+   "label": "Flag", 
+   "permlevel": 0, 
+   "precision": "", 
+   "read_only": 1
+  }, 
+  {
    "fieldname": "column_break1", 
    "fieldtype": "Column Break", 
    "oldfieldtype": "Column Break", 
@@ -848,7 +858,7 @@
  "idx": 1, 
  "is_submittable": 1, 
  "max_attachments": 1, 
- "modified": "2015-01-20 11:48:33.135261", 
+ "modified": "2015-01-20 18:07:34.651463", 
  "modified_by": "Administrator", 
  "module": "Selling", 
  "name": "Quotation", 

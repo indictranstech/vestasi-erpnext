@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-from frappe.utils import cstr
+from frappe.utils import cstr,cint
 from frappe.model.mapper import get_mapped_doc
 from frappe import _
 
@@ -24,6 +24,17 @@ class Quotation(SellingController):
 		self.validate_for_items()
 		self.validate_uom_is_integer("stock_uom", "qty")
 		self.validate_quotation_to()
+		self.set_ref_no()
+
+	def set_ref_no(self):
+		cust_count=frappe.db.sql("select customer_abbreviation,count from `tabCustomer` where customer_name='%s'"%(self.customer),as_list=1)
+		if self.flag=='fst' and cust_count:
+			self.ref_no = cust_count[0][0] + ' - ' + cust_count[0][1]
+			self.flag='snd'
+			count=cint(cust_count[0][1]) + cint(1)
+			frappe.db.sql("update `tabCustomer` set count='%s' where customer_name='%s'"%(count,self.customer))
+			frappe.db.commit()
+
 
 	def get_abbr(self):
 		c_abbr=frappe.db.sql("select customer_abbreviation from `tabCustomer` where name='%s'"%(self.customer),as_list=1)

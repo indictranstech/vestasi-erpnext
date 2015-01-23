@@ -213,6 +213,14 @@
    "width": "100px"
   }, 
   {
+   "fieldname": "ref_no", 
+   "fieldtype": "Data", 
+   "label": "Customer Code", 
+   "permlevel": 0, 
+   "precision": "", 
+   "read_only": 1
+  }, 
+  {
    "fieldname": "sec_break25", 
    "fieldtype": "Section Break", 
    "label": "Currency and Price List", 
@@ -1021,7 +1029,7 @@
  "idx": 1, 
  "in_create": 0, 
  "is_submittable": 1, 
- "modified": "2015-01-20 11:26:28.060325", 
+ "modified": "2015-01-20 17:53:39.536721", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Delivery Note", 

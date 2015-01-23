@@ -66,8 +66,11 @@ def append_ste(d,serial_no,doc):
 
 def check_qc_done(qc,sa,psd,sr,item_code):
 	qc_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'qc_status')
+	frappe.errprint(qc_status)
 	sa_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'sa_analysis')
+	frappe.errprint(sa_status)
 	psd_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'psd_status')
+	frappe.errprint(psd_status)
 	if qc=='Yes' and qc_status=='':
 		frappe.throw(_("QC Required for Serial {0} ").format(sr))
 	elif sa=='Yes' and sa_status=='':
@@ -79,7 +82,6 @@ def check_qc_done(qc,sa,psd,sr,item_code):
 
 #check if there is serial no and is valid serial no
 def validate_serial_no(d):
-	frappe.errprint("in validat")
 	if not d.custom_serial_no and frappe.db.get_value('Item',d.item_code,'serial_no')=='Yes':
 		frappe.throw(_("Row {0}: Enter serial no for Item {1}").format(d.idx,d.item_code))
 	elif d.custom_serial_no:
@@ -410,7 +412,11 @@ def get_batch_id(batch_no):
 
 #Automatically generate batch and serial no on submission these serial no will be source serial in next process
 def generate_serial_no_and_batch(d,previous_source_batch,doc):
+	frappe.errprint("In generate_serial_no and batch")
+	frappe.errprint(previous_source_batch)
+	frappe.errprint("after source")
 	target_batch=d.target_batch#new anand
+	frappe.errprint(target_batch)
 	if previous_source_batch:
 		target_batch=create_target_batch(d,previous_source_batch)
 	elif not previous_source_batch and not d.target_batch:
@@ -421,14 +427,18 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	sr_no.qty=cstr(d.qty)
 	sr_no.status="Available"
 	sr_no.item_name=d.item_name
+	frappe.errprint("In serial no")
 	sr_no.serial_no_warehouse=d.t_warehouse
 	sr_no.item_group=frappe.db.get_value("Item",{"item_code":d.item_code},'item_group')
 	sr_no.description=d.description
 	sr_no.batch_no=d.target_batch
 	sr_no.finished_good='Yes'
 	sr_no.save(ignore_permissions=True)
+	frappe.db.commit()
+	frappe.errprint(sr_no.name)
 	d.custom_serial_no=d.target_batch
-	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,doc.name,d.item_code))
+	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,doc.name,d.item_code),debug=True)
+	frappe.errprint("end of serial no and batch")
 
 
 
@@ -436,14 +446,14 @@ def issue_serial_no(d,status,qty):
 		if d.custom_serial_no:
 			sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
 			for s in sr_no:
-				frappe.db.sql(""" update `tabSerial No` set status='%s' and
-					serial_no_warehouse='%s' and qty=%s where name='%s'
+				frappe.db.sql(""" update `tabSerial No` set status='%s',
+					serial_no_warehouse='%s',qty=%s where name='%s'
 					"""%(status, d.s_warehouse or d.t_warehouse, cint(qty), s))
+		
 				
 
 #Update Serial Warehouse in serial no on material transfer
 def update_serial_no_warehouse(doc,method):
-	frappe.errprint("in the update_serial_no_warehouse ")
 	if doc.purpose=='Material Transfer'  :
 		for item in doc.get("mtn_details"):
 			validate_serial_no(item)
@@ -454,11 +464,11 @@ def update_serial_no_warehouse(doc,method):
 
 #update qty to serial no on use
 def update_qty(doc,method):
-	frappe.errprint("in the update_qty")
 	for d in doc.get('mtn_details'):
 		if d.s_warehouse and d.custom_serial_no and doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			sr_no=(d.custom_serial_no).split('\n')
 			qty=cint(round(d.qty))
+			frappe.errprint("End of update qty")
 			for s in sr_no:
 				if s:
 					serial_qty=frappe.db.get_value('Serial No',s,'qty')
@@ -473,9 +483,9 @@ def update_qty(doc,method):
 						make_serialgl(d,s,qty,doc)
 						qty= cint(qty) - cint(serial_qty)
 
+
 # #keep track of serials used in stock entry
 def make_serialgl(d,serial_no,qty,doc):
-	frappe.errprint("in the make_serialgl")
 	#change Serial Maintain to Serial Stock
 	bi=frappe.new_doc('Serial Stock')
 	bi.document=doc.name
