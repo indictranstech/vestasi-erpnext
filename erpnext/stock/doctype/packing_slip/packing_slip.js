@@ -2,10 +2,54 @@
 // License: GNU General Public License v3. See license.txt
 
 cur_frm.fields_dict['delivery_note'].get_query = function(doc, cdt, cdn) {
-	return{
-		filters:{ 'docstatus': 0}
-	}
+	return {
+				query: "erpnext.stock.doctype.packing_slip.packing_slip.delivery_note_details"
+			}
 }
+
+
+cur_frm.cscript.delivery_note =function (doc,cdt,cdn){
+     console.log(doc.delivery_note)
+     if(doc.delivery_note){
+
+     	 frappe.call({
+     	method:"erpnext.stock.doctype.packing_slip.packing_slip.get_customer_info",
+     	args:{"delivery_no":doc.delivery_note},
+     	callback:function(r){
+     		if(r.message)
+           {
+	          doc.po_no=r.message[0][0]
+     		  doc.ref_no=r.message[0][1]
+     		  refresh_field('po_no')
+     		  refresh_field('ref_no')
+
+             }     		
+     	}
+
+     });
+
+     }
+    
+
+}
+
+cur_frm.cscript.billing_address=function(doc,cdt,cdn){
+	frappe.call({
+		method: "erpnext.stock.doctype.packing_slip.packing_slip.get_address",
+		args:{"address":doc.billing_address},
+		callback: function(r) {
+			if(r.message){
+				console.log(r.message)
+				cur_frm.set_value("address_display", r.message)
+			refresh_field("address_display")
+
+			}
+				
+		}
+	});
+}
+
+
 
 
 cur_frm.fields_dict['item_details'].grid.get_field('item_code').get_query =
@@ -15,6 +59,27 @@ cur_frm.fields_dict['item_details'].grid.get_field('item_code').get_query =
 				filters:{ 'delivery_note': doc.delivery_note}
 			}
 }
+
+
+cur_frm.cscript.terms_name=function(doc,cdt,cdn) {
+		frappe.call({
+		method: "erpnext.stock.doctype.packing_slip.packing_slip.get_terms",
+		args:{"terms_nm":doc.terms_name},
+		callback: function(r) {
+			if(r.message){
+				console.log(r.message)
+				cur_frm.set_value("terms", r.message)
+			refresh_field("terms")
+
+			}
+				
+		}
+	});
+	}
+
+
+
+
 
 cur_frm.cscript.onload_post_render = function(doc, cdt, cdn) {
 	if(doc.delivery_note && doc.__islocal) {

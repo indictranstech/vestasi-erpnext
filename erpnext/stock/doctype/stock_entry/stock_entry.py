@@ -62,7 +62,7 @@ class StockEntry(StockController):
 				frappe.errprint("Done")
 
 	def on_submit(self):
-		self.update_stock_serial_name()
+		# self.update_stock_serial_name()
 		self.update_stock_ledger()
 
 
@@ -261,14 +261,8 @@ class StockEntry(StockController):
 						if d.bom_no:
 							bom = frappe.db.get_value("BOM", d.bom_no, ["operating_cost", "quantity"], as_dict=1)
 							operation_cost_per_unit = flt(bom.operating_cost) / flt(bom.quantity)
-<<<<<<< HEAD
 						d.incoming_rate = operation_cost_per_unit + (raw_material_cost / flt(d.transfer_qty))
 					d.amount = flt(d.transfer_qty) * flt(d.incoming_rate)
-=======
-						d.incoming_rate = flt(operation_cost_per_unit +
-							(raw_material_cost + flt(self.total_fixed_cost)) / flt(d.transfer_qty), self.precision("incoming_rate", d))
-					d.amount = flt(flt(d.transfer_qty) * flt(d.incoming_rate), self.precision("transfer_qty", d))
->>>>>>> c20072e9406130f0977339dd650cb359a1228402
 					break
 
 	def get_incoming_rate(self, args):

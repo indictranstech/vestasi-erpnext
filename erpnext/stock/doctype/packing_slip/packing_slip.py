@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.utils import flt, cint
 from frappe import _
+from frappe.utils import cstr, flt, getdate, comma_and,cint
 
 from frappe.model.document import Document
 
@@ -173,3 +174,28 @@ def item_details(doctype, txt, searchfield, start, page_len, filters):
 	 			limit  %s, %s """ % ("%s", searchfield, "%s",
 	 			get_match_cond(doctype), "%s", "%s"),
 	 			((filters or {}).get("delivery_note"), "%%%s%%" % txt, start, page_len))
+
+def delivery_note_details(doctype, txt, searchfield, start, page_len, filters):
+	return frappe.db.sql(""" select name from `tabDelivery Note` where docstatus != 2  """)
+
+@frappe.whitelist()
+def get_customer_info(delivery_no):
+	frappe.errprint("In get customer info")
+	frappe.errprint(delivery_no)
+	customer_info=frappe.db.sql("select po_no,ref_no from `tabDelivery Note` where name='%s'"%(delivery_no),debug=True,as_list=1)
+	frappe.errprint(customer_info)
+	return customer_info
+
+@frappe.whitelist()
+def get_address(address):
+	cust_address=frappe.db.get_value('Address',{"name":address,"is_primary_address":1},"*")
+	if cust_address:
+		address=cstr(cust_address["address_line1"])+'</br>'+cstr(cust_address["address_line2"])+'</br>'+cstr(cust_address["city"])+'</br>'+cstr(cust_address["state"])+'</br>Phone:'+cstr(cust_address["phone"])+'</br>Fax:'+cstr(cust_address["fax"])
+		frappe.errprint(address)
+		return address
+
+@frappe.whitelist()
+def get_terms(terms_nm):
+	terms=frappe.db.get_value('Terms and Conditions',{"name":terms_nm},'terms')
+	if terms:
+		return terms
