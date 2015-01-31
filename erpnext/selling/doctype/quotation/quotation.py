@@ -28,14 +28,14 @@ class Quotation(SellingController):
 		self.set_ref_no()
 
 	def set_ref_no(self):
-		cust_count=frappe.db.sql("select customer_abbreviation,count from `tabCustomer` where customer_name='%s'"%(self.customer),as_list=1)
+		cust_count=frappe.db.sql("select customer_abbreviation,count from `tabCustomer` where name='%s'"%(self.customer),as_list=1)
 		if self.flag=='fst' and cust_count:
 			year=datetime.date.today().year
 			year=str(year)
 			self.ref_no = cust_count[0][0] + ' - '+year[2:]+' - ' + cust_count[0][1]
 			self.flag='snd'
 			count=cint(cust_count[0][1]) + cint(1)
-			frappe.db.sql("update `tabCustomer` set count='%s' where customer_name='%s'"%(count,self.customer))
+			frappe.db.sql("update `tabCustomer` set count='%s' where name='%s'"%(count,self.customer))
 			frappe.db.commit()
 
 
