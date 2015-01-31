@@ -189,10 +189,31 @@ def get_customer_info(delivery_no):
 @frappe.whitelist()
 def get_address(address):
 	cust_address=frappe.db.get_value('Address',{"name":address,"is_primary_address":1},"*")
-	if cust_address:
-		address=cstr(cust_address["address_line1"])+'</br>'+cstr(cust_address["address_line2"])+'</br>'+cstr(cust_address["city"])+'</br>'+cstr(cust_address["state"])+'</br>Phone:'+cstr(cust_address["phone"])+'</br>Fax:'+cstr(cust_address["fax"])
-		frappe.errprint(address)
-		return address
+	frappe.errprint(cust_address)
+	if cust_address['address_line1']:
+		frappe.errprint("1")
+		full_address=cstr(cust_address["address_line1"])+'</br>'
+	if cust_address["address_line2"]:
+		frappe.errprint("2")
+		full_address=full_address+cstr(cust_address["address_line2"])+'</br>'
+	if cust_address["city"]:
+		frappe.errprint("3")
+		full_address=full_address+cstr(cust_address["city"])+'</br>'
+	if cust_address["state"]:
+		frappe.errprint("4")
+		full_address=full_address+cstr(cust_address["state"])+'</br>'
+	if cust_address["phone"]:
+		frappe.errprint("5")
+		full_address=full_address+'Phone:'+cstr(cust_address["phone"])+'</br>'
+	if cust_address["fax"]:
+		frappe.errprint("6")
+		full_address=full_address+'Fax:'+cstr(cust_address["fax"])+'</br>'
+	frappe.errprint(full_address)
+
+	# if cust_address:
+	# 	# address=cstr(cust_address["address_line1"])+'</br>'+cstr(cust_address["address_line2"])+'</br>'+cstr(cust_address["city"])+'</br>'+cstr(cust_address["state"])+'</br>Phone:'+cstr(cust_address["phone"])+'</br>Fax:'+cstr(cust_address["fax"])
+	# 	frappe.errprint(address)
+	return full_address
 
 @frappe.whitelist()
 def get_terms(terms_nm):
