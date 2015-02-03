@@ -15,7 +15,7 @@ class StockLedgerEntry(Document):
 	def validate(self):
 		from erpnext.stock.utils import validate_warehouse_company
 		self.validate_mandatory()
-		self.validate_item()
+		#self.validate_item()
 		validate_warehouse_company(self.warehouse, self.company)
 		self.scrub_posting_time()
 

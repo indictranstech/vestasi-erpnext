@@ -24,6 +24,12 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 			};
 		};
 
+		this.frm.fields_dict.bom_no.get_query = function() {
+			return {
+				filters:{ 'docstatus': 1 }
+			};
+		};
+
 		this.frm.fields_dict.mtn_details.grid.get_field('item_code').get_query = function() {
 			if(in_list(["Sales Return", "Purchase Return"], me.frm.doc.purpose) &&
 				me.get_doctype_docname()) {
@@ -237,8 +243,8 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		if(!row.t_warehouse) row.t_warehouse = this.frm.doc.to_warehouse;
 	},
 
-	source_mandatory: ["Material Issue", "Material Transfer", "Purchase Return"],
-	target_mandatory: ["Material Receipt", "Material Transfer", "Sales Return"],
+	source_mandatory: ["Material Issue", "Material Transfer", "Purchase Return", "Subcontract"],
+	target_mandatory: ["Material Receipt", "Material Transfer", "Sales Return", "Subcontract"],
 
 	from_warehouse: function(doc) {
 		var me = this;
@@ -474,6 +480,7 @@ cur_frm.fields_dict.supplier.get_query = function(doc, cdt, cdn) {
 }
 cur_frm.add_fetch('production_order', 'total_fixed_cost', 'total_fixed_cost');
 cur_frm.add_fetch('bom_no', 'total_fixed_cost', 'total_fixed_cost');
+
 
 cur_frm.cscript.source_batch = function(doc, cdt, cdn) {
 	var d=locals[cdt][cdn]
