@@ -42,7 +42,7 @@ def validate_serial_qc(doc,method):
 					check_qc_done(ca_req,sa_req,psd_req,sr,d.item_code)
 
 def update_stock_name(doc,method):
-	if doc.purpose =='Repack':
+	if doc.purpose =='Repack' or doc.purpose=='Manufacture':
 		for d in doc.get('mtn_details'):
 			if d.t_warehouse and d.custom_serial_no:
 				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
