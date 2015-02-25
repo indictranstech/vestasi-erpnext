@@ -20,8 +20,10 @@ cur_frm.cscript.delivery_note =function (doc,cdt,cdn){
            {
 	          doc.po_no=r.message[0][0]
      		  doc.ref_no=r.message[0][1]
+     		  doc.contact_person=r.message[0][2]
      		  refresh_field('po_no')
      		  refresh_field('ref_no')
+     		  refresh_field('contact_person')
 
              }     		
      	}
