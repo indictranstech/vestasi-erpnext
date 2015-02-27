@@ -189,15 +189,18 @@ def get_customer_info(delivery_no):
 @frappe.whitelist()
 def get_address(address):
 	cust_address=frappe.db.get_value('Address',{"name":address},"*")
-	frappe.errprint(cust_address)
 	if cust_address['address_line1']:
 		full_address=cstr(cust_address["address_line1"])+'</br>'
 	if cust_address["address_line2"]:
 		full_address=full_address+cstr(cust_address["address_line2"])+'</br>'
 	if cust_address["city"]:
 		full_address=full_address+cstr(cust_address["city"])+'</br>'
+	if cust_address["pincode"]:
+		full_address=full_address+cstr(cust_address["pincode"])+'</br>'
 	if cust_address["state"]:
 		full_address=full_address+cstr(cust_address["state"])+'</br>'
+	if cust_address["country"]:
+		full_address=full_address+cstr(cust_address["country"])+'</br>'
 	if cust_address["phone"]:
 		full_address=full_address+'Phone:'+cstr(cust_address["phone"])+'</br>'
 	if cust_address["fax"]:
