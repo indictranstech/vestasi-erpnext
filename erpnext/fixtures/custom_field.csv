@@ -18,6 +18,7 @@
 "Type:","Data (text)","Link","Select","Data","Select","Select","Text","Text","Data","Int","Check","Check","Check","Data","Text","Check","Data","Check","Check","Check","Check","Check","Check"
 "Info:","","Valid DocType","One of: Button, Check, Code, Column Break, Currency, Data, Date, Datetime, Dynamic Link, Float, HTML, Image, Int, Link, Long Text, Password, Percent, Read Only, Section Break, Select, Small Text, Table, Text, Text Editor, Time","","","One of: 1, 2, 3, 4, 5, 6, 7, 8, 9","","","","Integer","0 or 1","0 or 1","0 or 1","","","0 or 1","","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1"
 "Start entering data below this line"
+"","""Customer-customer_abbreviation""","Customer","Data","Customer Abbreviation","customer_name","","","","customer_abbreviation",0,1,0,0,"","",0,"",0,0,0,0,0,0
 "","""Packing Slip-terms""","Packing Slip","Text Editor","Terms","terms_name","","","","terms",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Packing Slip-terms_name""","Packing Slip","Link","Terms Name","terms_and_conditions","","Terms and Conditions","","terms_name",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Packing Slip-terms_and_conditions""","Packing Slip","Section Break","Terms and Conditions","","","","","terms_and_conditions",0,0,0,0,"","",0,"",0,0,0,0,0,0
