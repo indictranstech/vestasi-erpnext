@@ -73,9 +73,11 @@ doc_events = {
 
 scheduler_events = {
 	"all": [
+		"erpnext.stock.utils.reorder_item",
 		"erpnext.support.doctype.support_ticket.get_support_mails.get_support_mails",
 		"erpnext.hr.doctype.job_applicant.get_job_applications.get_job_applications",
 		"erpnext.selling.doctype.lead.get_leads.get_leads"
+
 	],
 	"daily": [
 		"erpnext.controllers.recurring_document.create_recurring_documents",

@@ -102,6 +102,7 @@ class MaterialRequest(BuyingController):
 
 	def on_submit(self):
 		frappe.db.set(self, 'status', 'Submitted')
+		# self.update_requested_qty()
 		self.update_bin(is_submit = 1, is_stopped = 0)
 
 	def check_modified_date(self):
@@ -115,6 +116,7 @@ class MaterialRequest(BuyingController):
 
 	def update_status(self, status):
 		self.check_modified_date()
+		# self.update_requested_qty()
 		self.update_bin(is_submit = (status == 'Submitted') and 1 or 0, is_stopped = 1)
 		frappe.db.set(self, 'status', cstr(status))
 		frappe.msgprint(_("Status updated to {0}").format(_(status)))
@@ -133,6 +135,7 @@ class MaterialRequest(BuyingController):
 
 		# Step 5:=> Set Status
 		frappe.db.set(self,'status','Cancelled')
+		# self.update_requested_qty()
 
 	def update_completed_qty(self, mr_items=None):
 		if self.material_request_type != "Transfer":
@@ -162,6 +165,35 @@ class MaterialRequest(BuyingController):
 		self.per_ordered = flt((per_ordered / flt(len(item_doclist))) * 100.0, 2)
 		frappe.db.set_value(self.doctype, self.name, "per_ordered", self.per_ordered)
 
+#newly added update_requested_qty method on 23rd march 2015
+
+	def update_requested_qty(self, mr_item_rows=None):
+		"""update requested qty (before ordered_qty is updated)"""
+		from erpnext.stock.utils import get_bin
+
+		def _update_requested_qty(item_code, warehouse):
+			requested_qty = frappe.db.sql("""select sum(mr_item.qty - ifnull(mr_item.ordered_qty, 0))
+				from `tabMaterial Request Item` mr_item, `tabMaterial Request` mr
+				where mr_item.item_code=%s and mr_item.warehouse=%s
+				and mr_item.qty > ifnull(mr_item.ordered_qty, 0) and mr_item.parent=mr.name
+				and mr.status!='Stopped' and mr.docstatus=1""", (item_code, warehouse))
+
+			bin_doc = get_bin(item_code, warehouse)
+			bin_doc.indented_qty = flt(requested_qty[0][0]) if requested_qty else 0
+			bin_doc.save()
+
+		item_wh_list = []
+		for d in self.get("indent_details"):
+			if (not mr_item_rows or d.name in mr_item_rows) and [d.item_code, d.warehouse] not in item_wh_list \
+					and frappe.db.get_value("Item", d.item_code, "is_stock_item") == "Yes" and d.warehouse:
+				item_wh_list.append([d.item_code, d.warehouse])
+
+		for item_code, warehouse in item_wh_list:
+			_update_requested_qty(item_code, warehouse)			
+
+
+
+
 def update_completed_qty(doc, method):
 	if doc.doctype == "Stock Entry":
 		material_request_map = {}
@@ -182,36 +214,40 @@ def update_completed_qty(doc, method):
 			# update ordered percentage and qty
 			mr_obj.update_completed_qty(mr_items)
 
-def _update_requested_qty(doc, mr_obj, mr_items):
-	"""update requested qty (before ordered_qty is updated)"""
-	from erpnext.stock.utils import update_bin
-	for mr_item_name in mr_items:
-		mr_item = mr_obj.get("indent_details", {"name": mr_item_name})
-		se_detail = doc.get("mtn_details", {"material_request": mr_obj.name,
-			"material_request_item": mr_item_name})
 
-		if mr_item and se_detail:
-			mr_item = mr_item[0]
-			se_detail = se_detail[0]
-			mr_item.ordered_qty = flt(mr_item.ordered_qty)
-			mr_item.qty = flt(mr_item.qty)
-			se_detail.transfer_qty = flt(se_detail.transfer_qty)
 
-			if se_detail.docstatus == 2 and mr_item.ordered_qty > mr_item.qty \
-					and se_detail.transfer_qty == mr_item.ordered_qty:
-				add_indented_qty = mr_item.qty
-			elif se_detail.docstatus == 1 and \
-					mr_item.ordered_qty + se_detail.transfer_qty > mr_item.qty:
-				add_indented_qty = mr_item.qty - mr_item.ordered_qty
-			else:
-				add_indented_qty = se_detail.transfer_qty
 
-			update_bin({
-				"item_code": se_detail.item_code,
-				"warehouse": se_detail.t_warehouse,
-				"indented_qty": (se_detail.docstatus==2 and 1 or -1) * add_indented_qty,
-				"posting_date": doc.posting_date,
-			})
+
+# def _update_requested_qty(doc, mr_obj, mr_items):
+# 	"""update requested qty (before ordered_qty is updated)"""
+# 	from erpnext.stock.utils import update_bin
+# 	for mr_item_name in mr_items:
+# 		mr_item = mr_obj.get("indent_details", {"name": mr_item_name})
+# 		se_detail = doc.get("mtn_details", {"material_request": mr_obj.name,
+# 			"material_request_item": mr_item_name})
+
+# 		if mr_item and se_detail:
+# 			mr_item = mr_item[0]
+# 			se_detail = se_detail[0]
+# 			mr_item.ordered_qty = flt(mr_item.ordered_qty)
+# 			mr_item.qty = flt(mr_item.qty)
+# 			se_detail.transfer_qty = flt(se_detail.transfer_qty)
+
+# 			if se_detail.docstatus == 2 and mr_item.ordered_qty > mr_item.qty \
+# 					and se_detail.transfer_qty == mr_item.ordered_qty:
+# 				add_indented_qty = mr_item.qty
+# 			elif se_detail.docstatus == 1 and \
+# 					mr_item.ordered_qty + se_detail.transfer_qty > mr_item.qty:
+# 				add_indented_qty = mr_item.qty - mr_item.ordered_qty
+# 			else:
+# 				add_indented_qty = se_detail.transfer_qty
+
+# 			update_bin({
+# 				"item_code": se_detail.item_code,
+# 				"warehouse": se_detail.t_warehouse,
+# 				"indented_qty": (se_detail.docstatus==2 and 1 or -1) * add_indented_qty,
+# 				"posting_date": doc.posting_date,
+# 			})
 
 def set_missing_values(source, target_doc):
 	target_doc.run_method("set_missing_values")

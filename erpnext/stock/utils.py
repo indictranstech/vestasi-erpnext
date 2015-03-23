@@ -174,6 +174,7 @@ def get_buying_amount(voucher_type, voucher_no, item_row, stock_ledger_entries):
 
 
 def reorder_item():
+	print "in the reorder_item"
 	""" Reorder item if stock reaches reorder level"""
 	# if initial setup not completed, return
 	if not frappe.db.sql("select name from `tabFiscal Year` limit 1"):
