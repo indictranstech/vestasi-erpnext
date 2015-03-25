@@ -2,6 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
+from frappe import _
 import frappe
 
 def execute(filters=None):
