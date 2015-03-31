@@ -42,15 +42,17 @@ def validate_serial_qc(doc,method):
 					check_qc_done(ca_req,sa_req,psd_req,sr,d.item_code)
 
 def update_stock_name(doc,method):
+	# frappe.errprint("in the update_stock_name")
 	if doc.purpose =='Repack' or doc.purpose=='Manufacture':
 		for d in doc.get('mtn_details'):
-			if d.t_warehouse and d.custom_serial_no:
+			if d.s_warehouse and d.custom_serial_no:
 				sr_no=(d.custom_serial_no).splitlines() or (d.custom_serial_no).split('\n')
 				for sr in sr_no:
 					append_ste(d,sr,doc)
 					
 
 def append_ste(d,serial_no,doc):
+	# frappe.errprint("in the append_ste")
 	bi =frappe.get_doc("Serial No", serial_no)
 	ch = bi.append("serial_stock")
 	ch.document=doc.name
@@ -66,11 +68,11 @@ def append_ste(d,serial_no,doc):
 
 def check_qc_done(qc,sa,psd,sr,item_code):
 	qc_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'qc_status')
-	frappe.errprint(qc_status)
+	# frappe.errprint(qc_status)
 	sa_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'sa_analysis')
-	frappe.errprint(sa_status)
+	# frappe.errprint(sa_status)
 	psd_status=frappe.db.get_value('Serial No',{"item_code":item_code,"name":sr},'psd_status')
-	frappe.errprint(psd_status)
+	# frappe.errprint(psd_status)
 	if qc=='Yes' and qc_status=='':
 		frappe.throw(_("QC Required for Serial {0} ").format(sr))
 	elif sa=='Yes' and sa_status=='':
@@ -137,7 +139,7 @@ def validate_qc_status(doc,method):
 					frappe.throw(_("SA Anaysis Not Accpeted for Serial {0} ").format(sr))
 
 def update_serial_no(doc,method): #Rohit_sw
-	frappe.errprint("in the sn")
+	# frappe.errprint("in the sn")
 	for d in doc.get('delivery_note_details'):
 		if d.custom_serial_no:
 			serial_no=(d.custom_serial_no).splitlines()
@@ -233,7 +235,7 @@ def generate_serial_no_fg(doc,method):
 			update_batch_status("Yes",d.target_batch)
 
 def update_serial_no_warehouse_qty(qty,d,doc):
-	frappe.errprint("In update serial no warehouse qty")
+	# frappe.errprint("In update serial no warehouse qty")
 	sr_no=(d.custom_serial_no).splitlines()
 	qty_temp=cint(d.qty)
 	for sr in sr_no:
@@ -252,7 +254,7 @@ def update_serial_no_warehouse_qty(qty,d,doc):
 			amend_serial_no_mt(sr,rem_qty,serial_qty,sn.name,d,qty_temp,doc)
 
 def update_serial_no_mt_cancel(doc,method):
-	frappe.errprint("in update serial no")
+	# frappe.errprint("in update serial no")
 	for d in doc.get('mtn_details'):
 		if d.custom_serial_no and doc.purpose=='Material Transfer':
 			serials=get_serials_from_field(d)
@@ -263,7 +265,7 @@ def update_amended_serials(serials,doc,d):
 		change_serial_details(sn,doc,d)
 
 def change_serial_details(sn,doc,d):
-	frappe.errprint("in change serial no")
+	# frappe.errprint("in change serial no")
 	amended_qty=frappe.db.sql("""select qty,amended_serial_no from `tabSerial QTY Maintain` where parent='%s' and document='%s'"""%(sn,doc.name))
 	srn=frappe.get_doc("Serial No",sn)
 	if amended_qty:
@@ -286,7 +288,7 @@ def get_serials_from_field(d):
 
 
 def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
-	frappe.errprint("in amend serial qty")
+	# frappe.errprint("in amend serial qty")
 	parent=(name).split('-') or name
 	idx=frappe.db.sql("""select ifnull(max(idx),0) 
 		from `tabSerial QTY Maintain` 
@@ -299,7 +301,6 @@ def amend_serial_no_mt(sr,rem_qty,serial_qty,name,d,qty_temp,doc):
 	update_maintain_serial(name,sr,serial_qty,rem_qty,idx,doc,parent[0])
 
 def create_new_serial_no(idx,sr,rem_qty,d,parent):
-	frappe.errprint("In new serial no")
 	sn=frappe.new_doc('Serial No')
 	sn.serial_no=parent+'-'+cstr(idx+1)
 	sn.serial_no_warehouse=d.s_warehouse
@@ -311,7 +312,7 @@ def create_new_serial_no(idx,sr,rem_qty,d,parent):
 	return sn.name
 
 def update_maintain_serial(name,sr,serial_qty,qty_temp,idx,doc,parent):
-	frappe.errprint("In update maintain serial")
+
 	sqm=frappe.new_doc("Serial QTY Maintain")
 	sqm.amended_serial_no=name
 	sqm.idx=cint(idx)+1
@@ -418,11 +419,7 @@ def get_batch_id(batch_no):
 
 #Automatically generate batch and serial no on submission these serial no will be source serial in next process
 def generate_serial_no_and_batch(d,previous_source_batch,doc):
-	frappe.errprint("In generate_serial_no and batch")
-	frappe.errprint(previous_source_batch)
-	frappe.errprint("after source")
 	target_batch=d.target_batch#new anand
-	frappe.errprint(target_batch)
 	if previous_source_batch:
 		target_batch=create_target_batch(d,previous_source_batch)
 	elif not previous_source_batch and not d.target_batch:
@@ -433,7 +430,6 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	sr_no.qty=cstr(d.qty)
 	sr_no.status="Available"
 	sr_no.item_name=d.item_name
-	frappe.errprint("In serial no")
 	sr_no.serial_no_warehouse=d.t_warehouse
 	sr_no.item_group=frappe.db.get_value("Item",{"item_code":d.item_code},'item_group')
 	sr_no.description=d.description
@@ -441,10 +437,10 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	sr_no.finished_good='Yes'
 	sr_no.save(ignore_permissions=True)
 	frappe.db.commit()
-	frappe.errprint(sr_no.name)
+	# frappe.errprint(sr_no.name)
 	d.custom_serial_no=d.target_batch
 	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,doc.name,d.item_code),debug=True)
-	frappe.errprint("end of serial no and batch")
+	# frappe.errprint("end of serial no and batch")
 
 
 
@@ -474,18 +470,19 @@ def update_qty(doc,method):
 		if d.s_warehouse and d.custom_serial_no and doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			sr_no=(d.custom_serial_no).split('\n')
 			qty=cint(round(d.qty))
-			frappe.errprint("End of update qty")
 			for s in sr_no:
 				if s:
 					serial_qty=frappe.db.get_value('Serial No',s,'qty')
 					if qty >= serial_qty:
-						frappe.errprint("in the 2nd if")
 						qty= cint(qty) - cint(serial_qty)
 						frappe.db.sql("update `tabSerial No` set qty=qty-%s where name='%s'"%(cint(serial_qty),s))
+						frappe.db.commit()
+						# frappe.errprint("done")
 						# make_serialgl(d,s,serial_qty,doc)
 					elif qty > 0:
-						frappe.errprint("in the elif")
+						# frappe.errprint("in the elif")
 						frappe.db.sql("update `tabSerial No` set qty=qty-%s where name='%s'"%((cint(qty)),s))
+						frappe.db.commit()
 						make_serialgl(d,s,qty,doc)
 						qty= cint(qty) - cint(serial_qty)
 
@@ -518,7 +515,6 @@ def update_serial_in_warehouse(doc,method):
 #get source serial grade and attach it to target serial
 def update_target_serial_grade(doc,method):
 	if doc.purpose in ['Manufacture']:
-		frappe.errprint("in the update target")
 		grade=''
 		for d in doc.get('mtn_details'):
 			if d.s_warehouse and d.custom_serial_no:
@@ -569,7 +565,6 @@ def update_batch_status(status,target_batch):
 def get_serial_no_dn(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
 	cond=get_conditions(doc)
-	frappe.errprint(cond)
 	if cond:
 		return frappe.db.sql("""select name from `tabSerial No` %s and status='Available' and item_code='%s'"""%(cond,doc['item_code']),debug=1) or [['']]
 	else:
@@ -648,7 +643,7 @@ def generate_serial_no(doc,method):
 		elif d.sr_no and d.qty_per_drum_bag:
 			series=frappe.db.get_value('Serial No',{'name':d.custom_serial_no,'status':'Available','item_code':d.item_code},'naming_series')
 			if series and d.qty_per_drum_bag:
-				frappe.errprint([series, d.qty_per_drum_bag])
+				# frappe.errprint([series, d.qty_per_drum_bag])
 				frappe.db.sql("update `tabSerial No` set qty='%s',serial_no_warehouse='%s' where name='%s'"%(d.qty_per_drum_bag, d.warehouse,d.sr_no))
 				qty=cint(d.qty) - cint(d.qty_per_drum_bag)
 				serial_no_name=d.custom_serial_no + '\n'
@@ -767,7 +762,7 @@ def make_ToDo(sr_no,item_code,checker,role,reference_doc):
 			count+=1
 			if count!=0:
 				msg="Assign {0} serial no to SSA Analyst".format(count)
-			frappe.errprint("TODO done")	
+			# frappe.errprint("TODO done")	
 
 
 

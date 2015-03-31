@@ -49,8 +49,8 @@ doc_events = {
 		"on_update": "erpnext.home.make_comment_feed"
 	},
 	"Stock Entry": {
-		"validate":["erpnext.stock.custom_methods.validate_serial_qty","erpnext.stock.custom_methods.validate_serial_qc","erpnext.stock.custom_methods.update_serial_no_warehouse","erpnext.stock.custom_methods.update_qty","erpnext.stock.custom_methods.update_target_serial_grade"],
-		"on_submit":["erpnext.stock.doctype.material_request.material_request.update_completed_qty","erpnext.stock.custom_methods.generate_serial_no_fg","erpnext.stock.custom_methods.update_stock_name","erpnext.stock.custom_methods.update_serial_in_warehouse"],
+		"validate":["erpnext.stock.custom_methods.validate_serial_qty","erpnext.stock.custom_methods.validate_serial_qc","erpnext.stock.custom_methods.update_serial_no_warehouse","erpnext.stock.custom_methods.update_target_serial_grade"],
+		"on_submit":["erpnext.stock.custom_methods.update_qty","erpnext.stock.custom_methods.update_stock_name","erpnext.stock.doctype.material_request.material_request.update_completed_qty","erpnext.stock.custom_methods.generate_serial_no_fg","erpnext.stock.custom_methods.update_serial_in_warehouse"],
 		"on_cancel":["erpnext.stock.doctype.material_request.material_request.update_completed_qty","erpnext.stock.custom_methods.update_serialgl","erpnext.stock.custom_methods.update_serial_no_mt_cancel"]
 	},
 	"User": {
