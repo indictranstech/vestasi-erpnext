@@ -9,30 +9,22 @@ cur_frm.fields_dict['delivery_note'].get_query = function(doc, cdt, cdn) {
 
 
 cur_frm.cscript.delivery_note =function (doc,cdt,cdn){
-     console.log(doc.delivery_note)
-     if(doc.delivery_note){
-
-     	 frappe.call({
-     	method:"erpnext.stock.doctype.packing_slip.packing_slip.get_customer_info",
-     	args:{"delivery_no":doc.delivery_note},
-     	callback:function(r){
-     		if(r.message)
-           {
-	          doc.po_no=r.message[0][0]
-     		  doc.ref_no=r.message[0][1]
-     		  doc.contact_person=r.message[0][2]
-     		  refresh_field('po_no')
-     		  refresh_field('ref_no')
-     		  refresh_field('contact_person')
-
-             }     		
-     	}
-
-     });
-
-     }
-    
-
+    if(doc.delivery_note){
+		frappe.call({
+		 	method:"erpnext.stock.doctype.packing_slip.packing_slip.get_customer_info",
+		 	args:{"delivery_no":doc.delivery_note},
+		 	callback:function(r){
+		 		if(r.message){
+		          doc.po_no=r.message[0][0]
+		 		  doc.ref_no=r.message[0][1]
+		 		  doc.contact_person=r.message[0][2]
+		 		  refresh_field('po_no')
+		 		  refresh_field('ref_no')
+		 		  refresh_field('contact_person')
+	            }     		
+    	 	}
+	    });
+	}
 }
 
 cur_frm.cscript.billing_address=function(doc,cdt,cdn){

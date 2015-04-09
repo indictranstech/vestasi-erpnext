@@ -180,10 +180,7 @@ def delivery_note_details(doctype, txt, searchfield, start, page_len, filters):
 
 @frappe.whitelist()
 def get_customer_info(delivery_no):
-	frappe.errprint("In get customer info")
-	frappe.errprint(delivery_no)
 	customer_info=frappe.db.sql("select po_no,ref_no,contact_person from `tabDelivery Note` where name='%s'"%(delivery_no),debug=True,as_list=1)
-	frappe.errprint(customer_info)
 	return customer_info
 
 @frappe.whitelist()

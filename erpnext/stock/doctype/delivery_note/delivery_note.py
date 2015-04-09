@@ -90,9 +90,7 @@ class DeliveryNote(SellingController):
 					 frappe.throw(_("Sales Order required for Item {0}").format(d.item_code))
 
 	def validate(self):
-		frappe.errprint(self.customer_address)
-
-
+		
 		super(DeliveryNote, self).validate()
 
 		from erpnext.utilities import validate_status
