@@ -204,7 +204,7 @@ def generate_serial_no_fg(doc,method):
 			
 			elif d.t_warehouse and not d.qty_per_drum_bag:
 				generate_serial_no_and_batch(d,previous_source_batch,doc)
-				validate_serial_no(d)
+				# validate_serial_no(d)
 			
 			elif d.t_warehouse:
 				validate_serial_no(d)
@@ -412,8 +412,12 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	target_batch=d.target_batch#new anand
 	if previous_source_batch:
 		target_batch=create_target_batch(d,previous_source_batch)
-	elif not previous_source_batch and not d.target_batch:
-		validate_serial_no(d)
+		create_serial_no_for_batch(d,previous_source_batch,doc,target_batch)
+	# elif not previous_source_batch and not d.target_batch:
+		# validate_serial_no(d)
+
+
+def create_serial_no_for_batch(d,previous_source_batch,doc,target_batch):
 	sr_no=frappe.new_doc('Serial No')
 	sr_no.serial_no=target_batch
 	sr_no.item_code=d.item_code
@@ -427,9 +431,9 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	sr_no.finished_good='Yes'
 	sr_no.save(ignore_permissions=True)
 	frappe.db.commit()
-	d.custom_serial_no=d.target_batch
-	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s',target_batch='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,d.target_batch,doc.name,d.item_code),debug=True)
-	
+	d.custom_serial_no=target_batch
+	frappe.db.sql("update `tabStock Entry Detail` set custom_serial_no='%s',target_batch='%s' where parent='%s' and item_code='%s'"%(d.custom_serial_no,target_batch,doc.name,d.item_code),debug=True)
+
 
 
 
