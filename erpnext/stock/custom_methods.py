@@ -412,7 +412,7 @@ def generate_serial_no_and_batch(d,previous_source_batch,doc):
 	target_batch=d.target_batch#new anand
 	if previous_source_batch:
 		target_batch=create_target_batch(d,previous_source_batch)
-		create_serial_no_for_batch(d,previous_source_batch,doc,target_batch)
+	create_serial_no_for_batch(d,previous_source_batch,doc,target_batch)
 	# elif not previous_source_batch and not d.target_batch:
 		# validate_serial_no(d)
 
@@ -589,10 +589,12 @@ def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s' 
 		and ifnull(qty, 0) = 0
 		and status='Available' and finished_good='No' and
-		serial_no_warehouse='%s'"""%(doc['item_code'],doc['t_warehouse']),debug=1)
+		serial_no_warehouse='%s'"""%(doc['item_code'],doc['t_warehouse']))
+
 	elif doc['purpose']=='Sales Return':
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s'
 		and status='Delivered'"""%(doc['item_code']))
+
 	else:
 		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s'
 		and ifnull(qty,0)<>0
