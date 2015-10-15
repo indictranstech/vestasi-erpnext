@@ -200,6 +200,7 @@ def generate_serial_no_fg(doc,method):
 		if doc.purpose in ['Manufacture','Repack','Material Receipt']:
 			
 			if d.t_warehouse and d.qty_per_drum_bag:
+				frappe.errprint("matched")
 				generate_serial_no_per_drum(d,doc)
 			
 			elif d.t_warehouse and not d.qty_per_drum_bag:
@@ -347,6 +348,7 @@ def get_qty_for_serials(serials):
 #Automatically generate serials based on qty and qty per drum
 def generate_serial_no_per_drum(d,doc):
 	series=frappe.db.get_value('Serial No',{'name':d.serial_no_link,'status':'Available','item_code':d.item_code},'naming_series')
+	frappe.errprint(series)
 	if series:
 		validate_serial_no(d)
 		serial_no = (d.custom_serial_no).splitlines()
