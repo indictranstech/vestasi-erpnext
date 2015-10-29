@@ -141,8 +141,8 @@ def update_serial_no(doc,method): #Rohit_sw
 			for sr_no in serial_no:
 				if cint(qty) > 0:
 					qty=flt(qty) - flt(frappe.db.get_value('Serial No',sr_no,'qty'))
-					make_serialgl_dn(d,sr_no,frappe.db.get_value('Serial No',sr_no,'qty'),doc)
-					frappe.db.sql("update `tabSerial No` set qty=0.0,status='Available' where name='%s'"%(sr_no))
+					make_serialgl_dn(d,sr_no, d.qty,doc)
+					frappe.db.sql("update `tabSerial No` set qty=0.0,status='Delivered', delivery_document_no = '%s' where name='%s'"%(doc.name, sr_no))
 					if (cint(0)-cint(qty))>0:
 						amend_serial_no(d,sr_no,qty)
 
@@ -219,6 +219,7 @@ def generate_serial_no_fg(doc,method):
 		
 		elif doc.purpose in ['Sales Return']:
 			validate_serial_no(d)
+			update_qty_on_sales_return(doc, d)
 
 		elif doc.purpose in ['Material Transfer']:
 			validate_serial_no(d)
@@ -228,6 +229,16 @@ def generate_serial_no_fg(doc,method):
 		if d.t_warehouse and d.target_batch and doc.purpose in ['Manufacture','Repack']:
 			update_batch_status("Yes",d.target_batch)
 		validate_serial_no(d)
+
+def update_qty_on_sales_return(doc, args):
+	if doc.delivery_note_no:
+		serial = frappe.db.sql(""" select parent, sum(qty) as qty from `tabSerial Stock`
+			where document = '%s' group by parent"""%(doc.delivery_note_no),as_dict=1)
+		if serial:
+			for sn in serial:
+				frappe.db.sql(""" update `tabSerial No` set qty = ifnull(qty,0) + %s
+					where name = '%s'	"""%(flt(sn.qty), sn.parent))
+				frappe.db.sql(""" delete from `tabSerial Stock` where document = '%s'"""%(doc.delivery_note_no))
 
 def update_serial_no_warehouse_qty(qty,d,doc):
 	sr_no=(d.custom_serial_no).splitlines()
