@@ -176,7 +176,7 @@ cur_frm.fields_dict.purchase_receipt_details.grid.get_field("qa_no").get_query =
 cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 	if(cint(frappe.boot.notification_settings.purchase_receipt))
 		cur_frm.email_doc(frappe.boot.notification_settings.purchase_receipt_message);
-	location.reload();
+	cur_frm.reload_doc();
 }
 
 cur_frm.cscript.send_sms = function() {
@@ -196,7 +196,8 @@ cur_frm.fields_dict.purchase_receipt_details.grid.get_field("custom_serial_no").
 		filters: {
 			'qty': null,
 			'status':'Available',
-			'item_code':d.item_code
+			'item_code':d.item_code,
+			'serial_no_warehouse': d.warehouse
 		}
 	}
 }
