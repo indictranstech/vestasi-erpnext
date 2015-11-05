@@ -19,7 +19,7 @@ def execute(filters=None):
 			item_detail.stock_uom, sle.actual_qty, sle.qty_after_transaction,
 			(sle.incoming_rate if sle.actual_qty > 0 else 0.0),
 			sle.valuation_rate, sle.stock_value, sle.voucher_type, sle.voucher_no,
-			sle.batch_no, sle.serial_no, sle.company])
+			 sle.company])
 
 	return columns, data
 
@@ -28,8 +28,7 @@ def get_columns():
 		_("Brand") + ":Link/Brand:100", _("Description") + "::200", _("Warehouse") + ":Link/Warehouse:100",
 		_("Stock UOM") + ":Link/UOM:100", _("Qty") + ":Float:50", _("Balance Qty") + ":Float:100",
 		_("Incoming Rate") + ":Currency:110", _("Valuation Rate") + ":Currency:110", _("Balance Value") + ":Currency:110",
-		_("Voucher Type") + "::110", _("Voucher #") + ":Dynamic Link/Voucher Type:100", _("Batch") + ":Link/Batch:100",
-		_("Serial #") + ":Link/Serial No:100", _("Company") + ":Link/Company:100"]
+		_("Voucher Type") + "::110", _("Voucher #") + ":Dynamic Link/Voucher Type:100", _("Company") + ":Link/Company:100"]
 
 def get_stock_ledger_entries(filters):
 	return frappe.db.sql("""select concat_ws(" ", posting_date, posting_time) as date,

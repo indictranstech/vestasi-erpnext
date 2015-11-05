@@ -410,11 +410,15 @@ class StockEntry(StockController):
 				if d.s_warehouse:					
 					#d.source_batch=frappe.db.get_value('Serial No',d.serial_no_link,'batch_no')
 					d.grade=frappe.db.get_value('Serial No',d.serial_no_link,'grade')
-				if check!='No':
-					if d.custom_serial_no and not d.qty_per_drum_bag:
-						d.custom_serial_no+=d.serial_no_link+ '\n'
-					elif d.t_warehouse or d.s_warehouse:
-						d.custom_serial_no=d.serial_no_link+ '\n'
+				# if check!='No':
+				# if d.custom_serial_no and not d.qty_per_drum_bag:
+				# 	d.custom_serial_no+=d.serial_no_link+ '\n'
+				# elif d.t_warehouse or d.s_warehouse:
+				# 	d.custom_serial_no=d.serial_no_link+ '\n'
+				if d.custom_serial_no:
+					d.custom_serial_no = d.custom_serial_no +'\n' + d.serial_no_link
+				else:
+					d.custom_serial_no = d.serial_no_link
 		return "Done"
 
 	def get_serial_nos(self,item_name):
@@ -664,6 +668,10 @@ class StockEntry(StockController):
 				if mreq_item.item_code != item.item_code or mreq_item.warehouse != item.t_warehouse:
 					frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
 						frappe.MappingMismatchError)
+
+@frappe.whitelist()
+def get_grade_details(item_code):
+	return {'grade': frappe.db.get_value('Item', item_code, 'grade')}
 
 @frappe.whitelist()
 def get_party_details(ref_dt, ref_dn):

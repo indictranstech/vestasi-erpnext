@@ -93,7 +93,7 @@
    "oldfieldname": "qty", 
    "oldfieldtype": "Currency", 
    "permlevel": 0, 
-   "read_only": 0, 
+   "read_only": 1, 
    "reqd": 1
   }, 
   {
@@ -304,7 +304,7 @@
  ], 
  "idx": 1, 
  "istable": 1, 
- "modified": "2014-08-28 03:10:15.991584", 
+ "modified": "2015-11-03 10:35:25.127266", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Stock Entry Detail", 

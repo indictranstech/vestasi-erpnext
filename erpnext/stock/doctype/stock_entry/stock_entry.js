@@ -536,3 +536,36 @@ cur_frm.fields_dict.mtn_details.grid.get_field("target_batch").get_query = funct
 	}
 }
 
+	
+cur_frm.cscript.no_of_qty = function(doc, cdt, cdn){
+	var d = locals[cdt][cdn]
+	calculate_qty(d)
+	refresh_field('qty' , d.name , 'mtn_details')
+}
+
+function calculate_qty(d){
+	d.qty = flt(d.no_of_qty) * 	flt(d.qty_per_drum_bag)
+}
+
+cur_frm.cscript.qty_per_drum_bag = function(doc, cdt, cdn){
+	var d = locals[cdt][cdn]
+	calculate_qty(d)
+	refresh_field('qty' , d.name , 'mtn_details')
+}
+
+
+frappe.ui.form.on('Stock Entry Detail', 'item_code', function(doc, cdt, cdn){
+	var d =locals[cdt][cdn]
+	console.log(d.item_code)
+	frappe.call({
+			method: "erpnext.stock.doctype.stock_entry.stock_entry.get_grade_details",
+			args: {item_code: d.item_code},
+			callback: function(r) {
+				if (!r.exc) {
+					d.grade = r.message['grade']
+					refresh_field('grade' , d.name , 'mtn_details')
+				}
+			}
+	});
+})
+
