@@ -296,6 +296,11 @@ class DeliveryNote(SellingController):
 			total = (amount/self.net_total)*self.grand_total
 			self.check_credit(total)
 
+	#New Changes
+	def get_certificate_serailNo(self, args):
+		args['custom_serial_no'] = frappe.db.get_value('Quality Analysis', args.get('quality_certificate_number'), 'drum_list')
+		return {'custom_serial_no': args['custom_serial_no']}
+
 def get_invoiced_qty_map(delivery_note):
 	"""returns a map: {dn_detail: invoiced_qty}"""
 	invoiced_qty_map = {}

@@ -248,6 +248,7 @@ def update_serial_no_warehouse_qty(qty,d,doc):
 			amend_serial_no_mt(sr,rem_qty,serial_qty,sn.name,d,qty_temp,doc)
 
 def update_serial_no_mt_cancel(doc,method):
+	update_charge_no(doc)
 	for d in doc.get('mtn_details'):
 		if d.custom_serial_no and doc.purpose=='Material Transfer':
 			serials=get_serials_from_field(d)
@@ -531,10 +532,16 @@ def update_serialgl(doc,method):
 							where parent='%s' and document='%s'"""%(sr_no,doc.name))
 			else:
 				if d.custom_serial_no:
+					serial_no_list = []
 					serial_no=(d.custom_serial_no).split('\n')
 					for sr_no in serial_no:
-						frappe.db.sql("""delete from `tabSerial No` 
-							where name='%s'"""%(sr_no))
+						if sr_no:
+							serial_no_list.append(sr_no)
+					if serial_no_list:
+						serial_no_list.sort(reverse=True)
+						for sr_no in serial_no_list:
+							frappe.delete_doc("Serial No", sr_no)
+					d.custom_serial_no = ''
 
 #update batch status on use
 def update_batch_status(status,target_batch):
@@ -545,7 +552,8 @@ def get_serial_no_dn(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
 	cond=get_conditions(doc)
 	if cond:
-		return frappe.db.sql("""select name from `tabSerial No` %s and status='Available' and item_code='%s'"""%(cond,doc['item_code'])) or [['']]
+		return frappe.db.sql("""select name from `tabSerial No` %s and status='Available' and item_code='%s'
+			and name like '%%%s%%' limit %s, %s """%(cond,doc['item_code'], txt, start, page_len)) or [['']]
 	else:
 		return [['']]
 
@@ -553,20 +561,21 @@ def get_conditions(doc):
 	con=''
 	qc=frappe.db.sql("""select chemical_analysis,psd_analysis,ssa from `tabItem` 
 		where item_code='%s'"""%(doc['item_code']),as_list=1)
-	if qc[0][0]=='Yes' and qc[0][1]=='Yes' and qc[0][2]=='Yes':
-		con="where qc_status='Accepted' and sa_analysis='Accepted' and psd_status='Accepted'"
-	elif qc[0][0]=='Yes' and qc[0][1]=='Yes':
-		con="where qc_status='Accepted' and psd_status='Accepted'"
-	elif qc[0][0]=='Yes' and qc[0][2]=='Yes':
-		con="where qc_status='Accepted' and sa_analysis='Accepted'"
-	elif qc[0][1]=='Yes' and qc[0][2]=='Yes':
-		con="where sa_analysis='Accepted' and psd_status='Accepted'"
-	elif qc[0][0]=='Yes':
-		con="where qc_status='Accepted'"
-	elif qc[0][1]=='Yes':
-		con="where psd_status='Accepted'"
-	elif qc[0][2]=='Yes':
-		con="where sa_analysis='Accepted'"
+	if qc:
+		if qc[0][0]=='Yes' and qc[0][1]=='Yes' and qc[0][2]=='Yes':
+			con="where qc_status='Accepted' and sa_analysis='Accepted' and psd_status='Accepted'"
+		elif qc[0][0]=='Yes' and qc[0][1]=='Yes':
+			con="where qc_status='Accepted' and psd_status='Accepted'"
+		elif qc[0][0]=='Yes' and qc[0][2]=='Yes':
+			con="where qc_status='Accepted' and sa_analysis='Accepted'"
+		elif qc[0][1]=='Yes' and qc[0][2]=='Yes':
+			con="where sa_analysis='Accepted' and psd_status='Accepted'"
+		elif qc[0][0]=='Yes':
+			con="where qc_status='Accepted'"
+		elif qc[0][1]=='Yes':
+			con="where psd_status='Accepted'"
+		elif qc[0][2]=='Yes':
+			con="where sa_analysis='Accepted'"
 
 	return con
 
@@ -586,28 +595,33 @@ def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 
 	else:
 		warehouse = doc['s_warehouse'] or doc['t_warehouse']
-		return frappe.db.sql("""select name from `tabSerial No` where item_code='%s'
+		return frappe.db.sql("""select name, concat('Qty: ',round(qty,3)), concat('Grade :',grade) from `tabSerial No` where item_code='%s'
 		and ifnull(qty,0)<>0
 		and status='Available' and serial_no_warehouse='%s' and name like '%%%s%%' limit %s, %s"""%(doc['item_code'], warehouse, txt, start, page_len), debug=1)
 
 #anand
 def get_serial_from(doctype,txt,searchfield,start,page_len,filters):
 	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
-		where item_code='%(item_code)s' 
+		where item_code='%s' 
 		and ifnull(qc_status,'') <> 'Accepted'
-		and status='Available' and item_code in(select name from tabItem where chemical_analysis='Yes')"""%{'item_code':filters['item_code']}, debug=1)
+		and status='Available' and item_code in(select name from tabItem where chemical_analysis='Yes')
+		and name like '%%%s%%' limit %s, %s """%(filters['item_code'], txt, start, page_len))
 
 def get_serial_from_psd(doctype,txt,searchfield,start,page_len,filters):
 	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
-		where item_code='%(item_code)s' 
+		where item_code='%s' 
 		and ifnull(psd_status,'')<>'Accepted'
-		and status='Available' and item_code in(select name from tabItem where psd_analysis='Yes')"""%{'item_code':filters['item_code']})
+		and status='Available' and 
+		item_code in(select name from tabItem where psd_analysis='Yes')
+		and name like '%%%s%%' limit %s, %s"""%(filters['item_code'], txt, start, page_len))
 
 def get_serial_from_sa(doctype,txt,searchfield,start,page_len,filters):
 	return frappe.db.sql("""select name,item_name,status from `tabSerial No` 
-		where item_code='%(item_code)s' 
-		and ifnull(sa_analysis,'')=''
-		and status='Available' and item_code in(select name from tabItem where ssa='Yes')"""%{'item_code':filters['item_code']})
+		where item_code='%s' 
+		and ifnull(sa_analysis,'')<>'Accepted'
+		and status='Available' and 
+		item_code in(select name from tabItem where ssa='Yes')
+		and name like '%%%s%%' limit %s, %s"""%(filters['item_code'], txt, start, page_len))
 
 
 def get_source_batch(doctype,txt,searchfield,start,page_len,filters):
@@ -746,16 +760,23 @@ def make_ToDo(sr_no,item_code,checker,role,reference_doc):
 			if count!=0:
 				msg="Assign {0} serial no to SSA Analyst".format(count)
 
+# def update_serialNo_grade(serial_no):
+# 	obj = frappe.get_doc('Serial No', serial_no)
+# 	grade = 'R' if obj.qc_grade == 'R' or obj.psd_grade == 'R' else obj.qc_grade or obj.psd_grade
+# 	grade = ('R' if obj.sa_grade == 'R' and grade == 'R' else '{0} - {1}'.format(grade, obj.sa_grade)) if obj.sa_grade and grade else obj.sa_grade or grade
+# 	obj.grade = grade
+# 	obj.save(ignore_permissions=True)
+
 def update_serialNo_grade(serial_no):
 	obj = frappe.get_doc('Serial No', serial_no)
-	grade = 'R' if obj.qc_grade == 'R' or obj.psd_grade == 'R' else obj.qc_grade or obj.psd_grade
-	grade = ('R' if obj.sa_grade == 'R' and grade == 'R' else '{0} - {1}'.format(grade, obj.sa_grade)) if obj.sa_grade and grade else obj.sa_grade or grade
+	grades_list = [obj.qc_grade or '', obj.psd_grade or '', obj.sa_grade or '']
+	grade = 'R' if 'R' in grades_list else ''.join(grades_list)
 	obj.grade = grade
 	obj.save(ignore_permissions=True)
 
-
 def get_the_drums(doc, method):
 	make_sicomill(doc)
+	make_chargenumber_entries(doc)
 
 def make_sicomill(doc):
 	if doc.purpose == 'Repack':
@@ -830,3 +851,40 @@ def make_serialgl(obj,d,serial_no,qty,doc):
 	# bi.parentfield='serial_stock'
 	# bi.parenttype='Serial No'
 	obj.save(ignore_permissions=True)
+
+def make_chargenumber_entries(doc):
+	if doc.charge_number:
+		charge_number = frappe.get_doc('Charge Number', doc.charge_number)
+		process_charge_no(doc, charge_number)
+		charge_number.save(ignore_permissions=True)
+
+def process_charge_no(doc, obj):
+	for d in doc.mtn_details:
+		if d.s_warehouse and not d.t_warehouse:
+			make_stock_in_entry(d, obj)
+		elif d.t_warehouse and not d.s_warehouse:
+			make_stock_out_entry(d, obj)
+
+def make_stock_in_entry(args, obj):
+	sti = obj.append('production_in_history', {})
+	sti.stock_entry_number = args.parent
+	sti.raw_material = args.item_code
+	sti.in_qty = args.qty
+	sti.in_warehouse = args.s_warehouse
+	sti.drum_no_details = args.custom_serial_no
+
+
+def make_stock_out_entry(args, obj):
+	sti = obj.append('production_out_history', {})
+	sti.stock_entry_number = args.parent
+	sti.finished_goods = args.item_code
+	sti.out_qty = args.qty
+	sti.out_warehouse = args.t_warehouse
+	sti.drum_no_details = args.custom_serial_no
+
+def update_charge_no(doc):
+	if doc.charge_number:
+		frappe.db.sql(""" delete from `tabProduction History` where parent = '%s'
+			and stock_entry_number = '%s'"""%(doc.charge_number, doc.name))
+		frappe.db.sql(""" delete from `tabProduction Output History` where parent = '%s'
+			and stock_entry_number = '%s'"""%(doc.charge_number, doc.name))

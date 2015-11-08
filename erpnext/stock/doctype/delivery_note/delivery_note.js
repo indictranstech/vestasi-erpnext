@@ -297,3 +297,21 @@ cur_frm.cscript.add = function(doc,cdt,cdn) {
 	
 	refresh_field('delivery_note_details')
 }
+
+cur_frm.fields_dict.delivery_note_details.grid.get_field("quality_certificate_number").get_query = function(doc,cdt,cdn) {
+	var d = locals[cdt][cdn]
+	return {
+		filters:{
+			'item_code':d.item_code,
+			'docstatus':1
+		}
+	}
+}
+
+//New Changes
+cur_frm.cscript.quality_certificate_number = function(doc, cdt, cdn){
+	d= locals[cdt][cdn]
+	get_server_fields('get_certificate_serailNo',d,'', doc, cdt, cdn, 1, function(){
+		refresh_field('custom_serial_no', d.name, 'delivery_note_details')
+	})
+}

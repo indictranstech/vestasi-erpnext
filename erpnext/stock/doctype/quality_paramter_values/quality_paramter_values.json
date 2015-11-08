@@ -123,6 +123,13 @@
    "set_only_once": 0
   }, 
   {
+   "fieldname": "d30", 
+   "fieldtype": "Float", 
+   "label": "d30", 
+   "permlevel": 0, 
+   "precision": "3"
+  }, 
+  {
    "allow_on_submit": 0, 
    "fieldname": "d50", 
    "fieldtype": "Float", 
@@ -159,6 +166,13 @@
    "reqd": 0, 
    "search_index": 0, 
    "set_only_once": 0
+  }, 
+  {
+   "fieldname": "d100", 
+   "fieldtype": "Float", 
+   "label": "d100", 
+   "permlevel": 0, 
+   "precision": "3"
   }, 
   {
    "allow_on_submit": 0, 
@@ -232,7 +246,7 @@
  "is_submittable": 0, 
  "issingle": 0, 
  "istable": 1, 
- "modified": "2014-11-13 13:28:47.977308", 
+ "modified": "2015-11-05 21:23:43.050283", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Quality Paramter Values", 

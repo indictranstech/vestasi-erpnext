@@ -18,12 +18,53 @@
 "Type:","Data (text)","Link","Select","Data","Select","Select","Text","Text","Data","Int","Check","Check","Check","Data","Text","Check","Data","Check","Check","Check","Check","Check","Check"
 "Info:","","Valid DocType","One of: Button, Check, Code, Column Break, Currency, Data, Date, Datetime, Dynamic Link, Float, HTML, Image, Int, Link, Long Text, Password, Percent, Read Only, Section Break, Select, Small Text, Table, Text, Text Editor, Time","","","One of: 1, 2, 3, 4, 5, 6, 7, 8, 9","","","","Integer","0 or 1","0 or 1","0 or 1","","","0 or 1","","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1"
 "Start entering data below this line"
+"","""Delivery Note Item-quality_certificate_number""","Delivery Note Item","Link","Quality Certificate Number","warehouse","","Quality Analysis","","quality_certificate_number",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Serial no","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
+"","""Delivery Note Item-add""","Delivery Note Item","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Serial No Link","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qc_certificate""","Serial No","Select","QC Certificate","psd_grade","","Completed
+Not Completed","","qc_certificate",0,0,0,0,"","Not Completed",0,"",0,0,0,0,0,0
+"","""Serial No-psd_analysis_number""","Serial No","Data","PSD Analysis Number","chemical_analysis_number","","","","psd_analysis_number",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-ssa_analysis_number""","Serial No","Data","SSA Analysis Number","psd_analysis_number","","","","ssa_analysis_number",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-chemical_analysis_number""","Serial No","Data","Chemical Analysis Number","psd_status","","","","chemical_analysis_number",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Quotation-terms_of_delivery""","Quotation","Small Text","Terms of Delivery","mode_of_delivery","","","","terms_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Quotation-mode_of_delivery""","Quotation","Data","Mode of Delivery","delivery_date","","","","mode_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Quotation-delivery_date""","Quotation","Date","Delivery Date","customer_abbreviation","","","","delivery_date",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Order-terms_of_delivery""","Sales Order","Small Text","Terms of Delivery","mode_of_delivery","","","","terms_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Order-mode_of_delivery""","Sales Order","Data","Mode of Delivery","delivery_date","","","","mode_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note-date_of_delivery""","Delivery Note","Date","Date of Delivery","terms_of_delivery","","","","date_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Packing Slip-billing_address""","Packing Slip","Link","Shipping Address","to_case_no","","Address","","billing_address",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note-terms_of_delivery""","Delivery Note","Data","Terms of Delivery","mode_of_delivery","","","","terms_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note-mode_of_delivery""","Delivery Note","Data","Mode of Delivery","ref_no","","","","mode_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Stock Entry-charge_number""","Stock Entry","Link","Charge Number","process_for","","Charge Number","","charge_number",0,0,0,0,"","",0,"eval:doc.process_for=='Siconide'",0,0,0,0,0,0
+"","""Serial No-psd_grade""","Serial No","Data","PSD Grade","","","","","psd_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qc_grade""","Serial No","Data","Chemical Grade","grade","","","","qc_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-sa_grade""","Serial No","Data","SSA Grade","grade","","","","sa_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qty""","Serial No","Float","Available Qty","item_code","","","","qty",0,0,1,0,"77","",0,"",0,0,0,0,1,0
+"","""Serial No-serial_no_warehouse""","Serial No","Link","Serial No Warehouse","brand","","Warehouse","","serial_no_warehouse",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-type_of_container""","Serial No","Data","Type of Container","serial_no_warehouse","","","","type_of_container",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-is_repacked""","Serial No","Select","Is Repacked","","","Yes
+No","","is_repacked",0,0,1,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-charge_no""","Serial No","Data","Charge No","stock_entry_name","","","","charge_no",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-sa_analysis""","Serial No","Select","SSA Analysis","qc_status","","-
+Accepted
+Rejected","","sa_analysis",0,0,1,0,"","-",0,"",0,0,0,0,0,0
+"","""Serial No-qc_status""","Serial No","Select","Chemical Analysis","company","","-
+Accepted
+Rejected","","qc_status",0,0,1,0,"","-",0,"",0,0,0,0,0,0
+"","""Serial No-psd_status""","Serial No","Select","PSD Analysis","sa_analysis","","-
+Accepted
+Rejected","","psd_status",0,0,1,0,"","-",0,"",0,0,0,0,0,0
+"","""Serial No-batch_no""","Serial No","Data","Batch No","is_repacked","","","","batch_no",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-serial_stock""","Serial No","Table","Serial Stock","grade","","Serial Stock","","serial_stock",0,0,1,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-amend_qty""","Serial No","Int","Amend Qty","make_from","","","","amend_qty",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-make_from""","Serial No","Link","Make from","serial_stock","","Serial No","","make_from",0,0,0,0,"","",1,"",0,0,0,0,0,0
+"","""Serial No-quality_checking""","Serial No","Section Break","Quality Checking","serial_stock","","","","quality_checking",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Item-grade""","Item","Link","Grade","barcode","","Grade","","grade",0,0,0,0,"","",1,"",0,0,0,0,0,0
 "","""Stock Entry Detail-custom_serial_no""","Stock Entry Detail","Text","Drums or Bags","serial_no","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Stock Entry Detail-serial_no_link""","Stock Entry Detail","Link","Select Drum or Bag","serial_no_batch","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-charge_no""","Serial No","Data","Charge No","stock_entry_name","","","","charge_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Stock Entry Detail-target_batch""","Stock Entry Detail","Link","Target Batch","source_batch","","Batch","","target_batch",0,0,0,0,"","",1,"",0,0,0,0,0,0
 "","""Stock Entry Detail-source_batch""","Stock Entry Detail","Link","Source Batch No","col_break4","","Batch","","source_batch",0,0,0,0,"","",1,"",0,0,0,0,0,0
-"","""Stock Entry Detail-charge_no""","Stock Entry Detail","Data","Charge No","col_break4","","","","charge_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Stock Entry Detail-drum_or_bag_series""","Stock Entry Detail","Select","Drum or Bag Series","serial_no_batch","","SM
 RM
 SN
@@ -35,30 +76,13 @@ SMB","","drum_or_bag_series",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Stock Entry-process_for""","Stock Entry","Select","Process For","purpose","","Sicomill
 Siconide","","process_for",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Stock Entry Detail-grade""","Stock Entry Detail","Data","Grade","target_batch","","","","grade",0,0,1,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-psd_grade""","Serial No","Data","psd_grade","","","","","psd_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-finished_good""","Serial No","Select","Finished Good","batch_no","","Yes
 No","","finished_good",0,0,0,0,"","No",0,"",0,0,0,0,0,0
-"","""Serial No-is_repacked""","Serial No","Select","Is Repacked","","","Yes
-No","","is_repacked",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-quality_parameters""","Serial No","Table","Quality Parameters","qc_status","","Quality Paramter Values","","quality_parameters",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-psd_status""","Serial No","Select","psd_status","sa_analysis","","Accepted
-Rejected","","psd_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-sa_analysis""","Serial No","Select","sa_analysis","qc_status","","Accepted
-Rejected","","sa_analysis",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-qc_grade""","Serial No","Data","qc_grade","grade","","","","qc_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-sa_grade""","Serial No","Data","sa_grade","grade","","","","sa_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-amend_qty""","Serial No","Int","Amend Qty","make_from","","","","amend_qty",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-make_from""","Serial No","Link","Make from","serial_stock","","Serial No","","make_from",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-serial_qty_maintain""","Serial No","Table","Serial QTY Maintain","serial_stock","","Serial QTY Maintain","","serial_qty_maintain",0,0,0,0,"","",1,"",0,0,0,0,0,0
-"","""Serial No-serial_stock""","Serial No","Table","Serial Stock","grade","","Serial Stock","","serial_stock",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-grade""","Serial No","Data","Grade","qc_status","","","","grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-qc_status""","Serial No","Select","QC Status","company","","Accepted
-Rejected","","qc_status",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-type_of_container""","Serial No","Data","Type of Container","serial_no_warehouse","","","","type_of_container",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-reusable_item""","Serial No","Select","Reusable Item","serial_no_warehouse","","No
 Yes","","reusable_item",0,0,0,0,"","",1,"",1,0,0,0,0,0
-"","""Serial No-serial_no_warehouse""","Serial No","Link","Serial No Warehouse","brand","","Warehouse","","serial_no_warehouse",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-qty""","Serial No","Float","Qty Per UOM","item_code","","","","qty",0,0,0,0,"77","",0,"",0,0,0,0,1,0
 "","""Serial No-naming_series""","Serial No","Select","Series","status","","
 SN
 SM
@@ -70,12 +94,10 @@ RM","","naming_series",0,0,0,0,"","",0,"",0,0,0,0,0,0
 No","","serial_no",0,1,0,0,"","",0,"",0,0,0,0,0,0
 "","""Item-is_repack_item""","Item","Select","Is Repack Item","is_stock_item","","Yes
 No","","is_repack_item",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Item-grade""","Item","Link","Grade","barcode","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
 "","""Item-category""","Item","Select","Category","item_name","","Sicomill
 Siconide","","category",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Purchase Receipt Item-qty_per_drum_bag""","Purchase Receipt Item","Float","Qty per Drum or Bag","rejected_qty","","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Journal Voucher Detail-against_sales_order""","Journal Voucher Detail","Link","Against Sales Order","against_account","","Sales Order","","against_sales_order",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Packing Slip-billing_address""","Packing Slip","Link","Billing Address","to_case_no","","Address","","billing_address",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Batch-batch_item""","Batch","Table","Batch Item","qty","","Batch Item","","batch_item",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Batch-creation""","Batch","Select","Creation","used","","Manual
 Auto","","creation",0,0,0,0,"","",0,"",0,0,0,0,0,0
@@ -85,9 +107,6 @@ Auto","","creation",0,0,0,0,"","",0,"",0,0,0,0,0,0
 No","","used",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Batch-warehouse""","Batch","Link","Warehouse","item","","Warehouse","","warehouse",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Company-buisness_address""","Company","Small Text","Buisness Address","address","","","","buisness_address",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Delivery Note Item-add""","Delivery Note Item","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Serial no","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
-"","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Serial No Link","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Item Quality Inspection Parameter-hp""","Item Quality Inspection Parameter","Float","HP","max_value","","","","hp",0,0,0,0,"","",1,"",0,0,0,0,0,0
 "","""Item Quality Inspection Parameter-mandatory""","Item Quality Inspection Parameter","Select","Mandatory","value","","Yes
 No","","mandatory",0,0,0,0,"","",0,"",0,0,0,0,0,0
@@ -108,7 +127,6 @@ Buisness Address","","address",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Purchase Receipt Item-custom_serial_no""","Purchase Receipt Item","Link","Custom Serial No","col_break5","","Serial No","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Purchase Receipt Item-sr_no""","Purchase Receipt Item","Text","Serial no","add","","","","sr_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
 "","""QC Serial-free_si""","QC Serial","Float","Free Si","alpha","","","","free_si",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-batch_no""","Serial No","Data","Batch No","is_repacked","","","","batch_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""ToDo-item_code""","ToDo","Link","Item Code","section_break_6","","Item","","item_code",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""ToDo-serial_no""","ToDo","Link","Serial No","assigned_by","","Serial No","","serial_no",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Warehouse-batch_no_required""","Warehouse","Select","Batch No Required","mobile_no","","Yes

@@ -71,7 +71,8 @@
    "fieldtype": "Data", 
    "label": "Stock Entry Name", 
    "permlevel": 0, 
-   "precision": ""
+   "precision": "", 
+   "read_only": 1
   }, 
   {
    "description": "Warehouse can only be changed via Stock Entry / Delivery Note / Purchase Receipt", 
@@ -425,7 +426,7 @@
  "icon": "icon-barcode", 
  "idx": 1, 
  "in_create": 0, 
- "modified": "2015-01-02 14:39:07.377854", 
+ "modified": "2015-11-08 17:36:23.422247", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Serial No", 
