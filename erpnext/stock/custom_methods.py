@@ -784,7 +784,10 @@ def reduce_the_qty(doc, args):
 	for serial_no in sn:
 		if serial_no:
 			sn_details = get_serial_NoInfo(serial_no)
-			sn_details.qty = flt(sn_details.qty) - flt(args.qty_per_drum_bag)	
+			if flt(sn_details.qty) >= flt(args.qty_per_drum_bag):
+				sn_details.qty = flt(sn_details.qty) - flt(args.qty_per_drum_bag)
+			else:
+				frappe.throw(_("Drum no {0} has less qty use another drum, check row {1}").format(serial_no, args.idx))
 			make_serialgl(sn_details, args, serial_no , args.qty_per_drum_bag , doc)
 
 def create_serial_no(doc, args):
