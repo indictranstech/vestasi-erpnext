@@ -504,12 +504,28 @@ cur_frm.fields_dict.mtn_details.grid.get_field("source_batch").get_query = funct
 
 
 cur_frm.cscript.add = function(doc,cdt,cdn) {  //live rohit_sw
-	var d = locals[cdt][cdn]	
-	get_server_fields("get_source_batch",d.item_code,'',doc,cdt,cdn,1,function(){
-					refresh_field('mtn_details')
-				})
+	var d = locals[cdt][cdn]
+	//change sr_no to custom_serial_no and custom_serial_no to serial_no_link
+	
+	if (d.custom_serial_no){
+		serial_no_list=d.custom_serial_no.split("\n");
+		b={};
+		for(var i=0; i<serial_no_list.length;i++){b[serial_no_list[i]]="";}
+		if (d.serial_no_link in b){
+			alert("Already Exist");
+		}else{
+			d.custom_serial_no=d.custom_serial_no+'\n'+d.serial_no_link
+		}
+	}
+	else{
+			d.custom_serial_no=d.serial_no_link
+	}
+	
+	refresh_field('custom_serial_no', d.name,'mtn_details')
 
 }
+
+
 
 cur_frm.fields_dict.mtn_details.grid.get_field("serial_no_link").get_query = function(doc,cdt,cdn) {
 	var d = locals[cdt][cdn]
@@ -519,7 +535,6 @@ cur_frm.fields_dict.mtn_details.grid.get_field("serial_no_link").get_query = fun
 		filters:{
 			'doc':filter
 		}
-
 	}
 }
 

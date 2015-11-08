@@ -295,7 +295,7 @@ cur_frm.cscript.add = function(doc,cdt,cdn) {
 			d.custom_serial_no=d.serial_no_link
 	}
 	
-	refresh_field('delivery_note_details')
+	refresh_field('custom_serial_no', d.name,'delivery_note_details')
 }
 
 cur_frm.fields_dict.delivery_note_details.grid.get_field("quality_certificate_number").get_query = function(doc,cdt,cdn) {
