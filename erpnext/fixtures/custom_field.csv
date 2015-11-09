@@ -18,10 +18,23 @@
 "Type:","Data (text)","Link","Select","Data","Select","Select","Text","Text","Data","Int","Check","Check","Check","Data","Text","Check","Data","Check","Check","Check","Check","Check","Check"
 "Info:","","Valid DocType","One of: Button, Check, Code, Column Break, Currency, Data, Date, Datetime, Dynamic Link, Float, HTML, Image, Int, Link, Long Text, Password, Percent, Read Only, Section Break, Select, Small Text, Table, Text, Text Editor, Time","","","One of: 1, 2, 3, 4, 5, 6, 7, 8, 9","","","","Integer","0 or 1","0 or 1","0 or 1","","","0 or 1","","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1"
 "Start entering data below this line"
-"","""Delivery Note Item-quality_certificate_number""","Delivery Note Item","Link","Quality Certificate Number","warehouse","","Quality Analysis","","quality_certificate_number",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Serial no","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
+"","""Delivery Note Item-no_of_drum_or_bag""","Delivery Note Item","Float","No of Drum or Bag","quantity_and_rate","3","","","no_of_drum_or_bag",0,0,0,0,"","1.0",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Drum or Bag No List","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
 "","""Delivery Note Item-add""","Delivery Note Item","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Serial No Link","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Select Drum or Bag No","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-quality_certificate_number""","Delivery Note Item","Link","Quality Certificate Number","warehouse","","Quality Analysis","","quality_certificate_number",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-qty_per_drum_or_bag""","Delivery Note Item","Float","Qty per Drum or Bag","no_of_drum_or_bag","3","","","qty_per_drum_or_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-grade""","Delivery Note Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Surface Serial-remark""","Surface Serial","Small Text","Remark","result","","","","remark",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""PSD Serial-remark""","PSD Serial","Small Text","Remark","result","","","","remark",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""QC Serial-remark""","QC Serial","Small Text","Remark","result","","","","remark",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Invoice-terms_of_delivery""","Sales Invoice","Small Text","Terms of Delivery","mode_of_delivery","","","","terms_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Invoice-mode_of_delivery""","Sales Invoice","Data","Mode of Delivery","delivery_date","","","","mode_of_delivery",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Invoice-delivery_date""","Sales Invoice","Date","Delivery Date","mode_of_payment","","","","delivery_date",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Packing Slip Item-grade""","Packing Slip Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Invoice Item-grade""","Sales Invoice Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Sales Order Item-grade""","Sales Order Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Quotation Item-grade""","Quotation Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-qc_certificate""","Serial No","Select","QC Certificate","psd_grade","","Completed
 Not Completed","","qc_certificate",0,0,0,0,"","Not Completed",0,"",0,0,0,0,0,0
 "","""Serial No-psd_analysis_number""","Serial No","Data","PSD Analysis Number","chemical_analysis_number","","","","psd_analysis_number",0,0,0,0,"","",1,"",0,0,0,0,0,0

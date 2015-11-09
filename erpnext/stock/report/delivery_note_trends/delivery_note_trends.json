@@ -1,11 +1,12 @@
 {
+ "add_total_row": 1, 
  "apply_user_permissions": 1, 
  "creation": "2013-06-13 18:42:11", 
  "docstatus": 0, 
  "doctype": "Report", 
  "idx": 1, 
  "is_standard": "Yes", 
- "modified": "2014-06-03 07:18:17.040345", 
+ "modified": "2015-11-09 11:09:08.374258", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Delivery Note Trends", 

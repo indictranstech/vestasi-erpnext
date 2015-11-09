@@ -110,7 +110,7 @@ def validate_serial_no_qty(doc,method):
 				if qty:
 					sum_qty=flt(sum_qty)+flt(qty)
 				else:
-					frappe.throw(_("Please select valid serial no at row {0}").format(d.idx))
+					frappe.throw(_("Drum {0} has been already delivered, please see row {1}").format(sr_no, d.idx))
 				sr.append(sr_no)
 			if flt(d.qty) > flt(sum_qty):
 				frappe.throw(_("Negative stock error:  {0} qty available in serial no {1}").format((flt(sum_qty)-flt(d.qty)),','.join(sr)))
@@ -138,15 +138,18 @@ def update_serial_no(doc,method): #Rohit_sw
 	for d in doc.get('delivery_note_details'):
 		if d.custom_serial_no:
 			serial_no=(d.custom_serial_no).splitlines()
-			qty=cstr(d.qty)
 			for sr_no in serial_no:
-				if cint(qty) > 0:
-					qty=flt(qty) - flt(frappe.db.get_value('Serial No',sr_no,'qty'))
-					make_serialgl_dn(d,sr_no,frappe.db.get_value('Serial No',sr_no,'qty'),doc)
-					frappe.db.sql("update `tabSerial No` set qty=0.0,status='Available' where name='%s'"%(sr_no))
-					if (cint(0)-cint(qty))>0:
-						amend_serial_no(d,sr_no,qty)
-
+				if flt(d.qty_per_drum_or_bag) > 0:
+					sn_qty = flt(frappe.db.get_value('Serial No',sr_no,'qty'))
+					if flt(sn_qty + 1.0) >= flt(d.qty_per_drum_or_bag):
+						qty = sn_qty - flt(d.qty_per_drum_or_bag)
+					else:
+						frappe.throw(_("Drum {0} has less qty, select proper drum").format(sr_no))
+					make_serialgl_dn(d,sr_no, d.qty_per_drum_or_bag,doc)
+					qty = 0 if qty < 1 else qty
+					frappe.db.sql("update `tabSerial No` set qty=%s,status='Available' where name='%s'"%(qty , sr_no))
+					# if flt(qty)>0:
+					# 	amend_serial_no(d,sr_no,qty)
 
 def make_serialgl_dn(d,serial_no,qty,doc):
 	bi=frappe.new_doc('Serial Stock')

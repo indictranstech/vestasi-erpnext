@@ -315,3 +315,20 @@ cur_frm.cscript.quality_certificate_number = function(doc, cdt, cdn){
 		refresh_field('custom_serial_no', d.name, 'delivery_note_details')
 	})
 }
+
+
+cur_frm.cscript.no_of_drum_or_bag = function(doc, cdt, cdn){
+	var d = locals[cdt][cdn]
+	calculate_qty(d)
+	refresh_field('qty' , d.name , 'delivery_note_details')
+}
+
+function calculate_qty(d){
+	d.qty = flt(d.no_of_drum_or_bag) * 	flt(d.qty_per_drum_or_bag)
+}
+
+cur_frm.cscript.qty_per_drum_or_bag = function(doc, cdt, cdn){
+	var d = locals[cdt][cdn]
+	calculate_qty(d)
+	refresh_field('qty' , d.name , 'delivery_note_details')
+}
