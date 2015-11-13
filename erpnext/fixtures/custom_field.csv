@@ -18,12 +18,16 @@
 "Type:","Data (text)","Link","Select","Data","Select","Select","Text","Text","Data","Int","Check","Check","Check","Data","Text","Check","Data","Check","Check","Check","Check","Check","Check"
 "Info:","","Valid DocType","One of: Button, Check, Code, Column Break, Currency, Data, Date, Datetime, Dynamic Link, Float, HTML, Image, Int, Link, Long Text, Password, Percent, Read Only, Section Break, Select, Small Text, Table, Text, Text Editor, Time","","","One of: 1, 2, 3, 4, 5, 6, 7, 8, 9","","","","Integer","0 or 1","0 or 1","0 or 1","","","0 or 1","","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1","0 or 1"
 "Start entering data below this line"
-"","""Delivery Note Item-no_of_drum_or_bag""","Delivery Note Item","Float","No of Drum or Bag","quantity_and_rate","3","","","no_of_drum_or_bag",0,0,0,0,"","1.0",0,"",0,0,0,0,0,0
+"","""Stock Entry Detail-qty_per_drum_bag""","Stock Entry Detail","Float","Qty per Drum or Bag","no_of_qty","","","","qty_per_drum_bag",0,1,0,0,"","",0,"",0,0,0,0,1,0
+"","""Delivery Note Item-qty_per_drum_or_bag""","Delivery Note Item","Float","Qty per Drum or Bag","no_of_drum_or_bag","3","","","qty_per_drum_or_bag",0,1,0,0,"","",0,"",0,0,0,0,0,0
+"","""Serial No-qty""","Serial No","Float","Available Qty","item_code","","","","qty",0,0,1,0,"77","",0,"",0,0,0,0,1,0
 "","""Delivery Note Item-custom_serial_no""","Delivery Note Item","Text","Drum or Bag No List","add","","","","custom_serial_no",0,0,0,0,"","",0,"",0,0,0,1,1,0
 "","""Delivery Note Item-add""","Delivery Note Item","Button","Add","serial_no_link","","","","add",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Delivery Note Item-serial_no_link""","Delivery Note Item","Link","Select Drum or Bag No","warehouse","","Serial No","","serial_no_link",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Delivery Note Item-quality_certificate_number""","Delivery Note Item","Link","Quality Certificate Number","warehouse","","Quality Analysis","","quality_certificate_number",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Delivery Note Item-qty_per_drum_or_bag""","Delivery Note Item","Float","Qty per Drum or Bag","no_of_drum_or_bag","3","","","qty_per_drum_or_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-no_of_drum_or_bag""","Delivery Note Item","Float","No of Drum or Bag","quantity_and_rate","3","","","no_of_drum_or_bag",0,0,0,0,"","1.0",0,"",0,0,0,0,0,0
+"","""Delivery Note Item-sample_product""","Delivery Note Item","Select","Sample Product","item_name","","Yes
+No","","sample_product",0,0,0,0,"","No",0,"",0,0,0,0,0,0
 "","""Delivery Note Item-grade""","Delivery Note Item","Link","Grade","item_code","","Grade","","grade",0,1,0,0,"","",0,"",0,0,0,0,0,0
 "","""Surface Serial-remark""","Surface Serial","Small Text","Remark","result","","","","remark",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""PSD Serial-remark""","PSD Serial","Small Text","Remark","result","","","","remark",0,0,0,0,"","",0,"",0,0,0,0,0,0
@@ -53,7 +57,6 @@ Not Completed","","qc_certificate",0,0,0,0,"","Not Completed",0,"",0,0,0,0,0,0
 "","""Serial No-psd_grade""","Serial No","Data","PSD Grade","","","","","psd_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-qc_grade""","Serial No","Data","Chemical Grade","grade","","","","qc_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-sa_grade""","Serial No","Data","SSA Grade","grade","","","","sa_grade",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Serial No-qty""","Serial No","Float","Available Qty","item_code","","","","qty",0,0,1,0,"77","",0,"",0,0,0,0,1,0
 "","""Serial No-serial_no_warehouse""","Serial No","Link","Serial No Warehouse","brand","","Warehouse","","serial_no_warehouse",0,0,1,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-type_of_container""","Serial No","Data","Type of Container","serial_no_warehouse","","","","type_of_container",0,0,1,0,"","",0,"",0,0,0,0,0,0
 "","""Serial No-is_repacked""","Serial No","Select","Is Repacked","","","Yes
@@ -100,7 +103,6 @@ Yes","","reusable_item",0,0,0,0,"","",1,"",1,0,0,0,0,0
 SN
 SM
 RM","","naming_series",0,0,0,0,"","",0,"",0,0,0,0,0,0
-"","""Stock Entry Detail-qty_per_drum_bag""","Stock Entry Detail","Float","Qty per Drum or Bag","no_of_qty","","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,1,0
 "","""Stock Entry Detail-no_of_qty""","Stock Entry Detail","Float","No of Drum or Bag","quantity_and_rate","2","","","no_of_qty",0,0,0,0,"","1.00",0,"",0,0,0,0,1,0
 "","""Purchase Order Item-qty_per_drum_bag""","Purchase Order Item","Float","Qty per Drum or Bag","qty","2","","","qty_per_drum_bag",0,0,0,0,"","",0,"",0,0,0,0,0,0
 "","""Item-serial_no""","Item","Select","Has Drum or Bag No","has_serial_no","","Yes

@@ -19,10 +19,13 @@ def validate_serial_qty(doc,method):
 				sr_no=(d.custom_serial_no).splitlines()
 				sr=''
 				for s in sr_no:
-					if sr:
-						sr+=','+'\''+s+'\''
-					else:
-						sr='\''+s+'\''
+					if s:
+						if sr:
+							sr+=','+'\''+s+'\''
+						else:
+							sr='\''+s+'\''
+						sn_details = get_serial_NoInfo(s)
+						check_qty_per_drum(d, d.qty_per_drum_bag, sn_details)
 				qty=frappe.db.sql("""select SUM(qty) from `tabSerial No` 
 					where name in (%s)"""%(sr),as_list=1)
 				if qty:
@@ -135,21 +138,46 @@ def validate_qc_status(doc,method):
 					frappe.throw(_("SA Anaysis Not Accpeted for Serial {0} ").format(sr))
 
 def update_serial_no(doc,method): #Rohit_sw
+	make_entry_for_sample_product(doc)
 	for d in doc.get('delivery_note_details'):
-		if d.custom_serial_no:
+		if d.custom_serial_no and d.sample_product == 'No':
 			serial_no=(d.custom_serial_no).splitlines()
+			delivery_note_qty = flt(d.qty)
 			for sr_no in serial_no:
-				if flt(d.qty_per_drum_or_bag) > 0:
-					sn_qty = flt(frappe.db.get_value('Serial No',sr_no,'qty'))
-					if flt(sn_qty + 1.0) >= flt(d.qty_per_drum_or_bag):
-						qty = sn_qty - flt(d.qty_per_drum_or_bag)
+				if sr_no:
+					if delivery_note_qty > 0:
+						if flt(d.qty_per_drum_or_bag) > 0:
+							sn_qty = flt(frappe.db.get_value('Serial No',sr_no,'qty'))
+							if flt(sn_qty) >= flt(d.qty_per_drum_or_bag):
+								qty = sn_qty - flt(d.qty_per_drum_or_bag)
+							else:
+								frappe.throw(_("Drum {0} has less qty, select proper drum").format(sr_no))
+							delivery_note_qty = flt(delivery_note_qty) - flt(d.qty_per_drum_or_bag)
+							make_serialgl_dn(d,sr_no, d.qty_per_drum_or_bag,doc)
+							qty = 0 if qty < 1 else qty
+							frappe.db.sql("update `tabSerial No` set qty=%s,status='Available' where name='%s'"%(qty , sr_no))
 					else:
-						frappe.throw(_("Drum {0} has less qty, select proper drum").format(sr_no))
-					make_serialgl_dn(d,sr_no, d.qty_per_drum_or_bag,doc)
-					qty = 0 if qty < 1 else qty
-					frappe.db.sql("update `tabSerial No` set qty=%s,status='Available' where name='%s'"%(qty , sr_no))
-					# if flt(qty)>0:
-					# 	amend_serial_no(d,sr_no,qty)
+						frappe.throw(_("You have select extra drum at row {0}").format(d.idx))
+
+def make_entry_for_sample_product(doc):
+	obj = frappe.new_doc('Sample Product')
+	obj.customer_name = doc.customer_name
+	obj.delivery_note = doc.name
+	status = 'No'
+	for d in doc.delivery_note_details:
+		if d.sample_product == 'Yes':
+			status = 'Yes'
+			make_sample_productdetails(obj, d)
+	if status == 'Yes':
+		obj.save(ignore_permissions=True)
+
+def make_sample_productdetails(obj, args):
+	spi = obj.append('sample_product_item', {})
+	spi.item_code = args.item_code
+	spi.no_of_drum = args.no_of_drum_or_bag
+	spi.qty_per_drum = args.qty_per_drum_or_bag
+	spi.total_qty = args.qty
+	spi.drum_details = args.custom_serial_no
 
 def make_serialgl_dn(d,serial_no,qty,doc):
 	bi=frappe.new_doc('Serial Stock')
@@ -182,19 +210,24 @@ def amend_serial_no(d,serial_no,qty):
 
 def update_serialgl_dn(doc,method):
 	qty=0
+	delete_sample_product_entry(doc)
 	for d in doc.get('delivery_note_details'):
-		if d.custom_serial_no:
+		if d.custom_serial_no and d.sample_product == 'No':
 			serial_no=(d.custom_serial_no).splitlines()
 			for sr_no in serial_no:
 				serial_no_qty=frappe.db.sql("select ifnull(qty,0) from `tabSerial Stock` where parent='%s' and document='%s'"%(sr_no,doc.name),as_list=1)
-			        if serial_no_qty:
+				if serial_no_qty:
 					qty=qty+cint(serial_no_qty[0][0])
-				amend_qty=frappe.db.get_value('Serial No',{'make_from':sr_no},'qty') or 0
+				amend_qty=frappe.db.get_value('Serial No',sr_no,'qty') or 0
 				qty = qty + amend_qty
 				frappe.db.sql("update `tabSerial No` set qty=%s,status='Available' where name='%s'"%(qty,sr_no))
 				frappe.db.sql("delete from `tabSerial Stock` where parent='%s' and document='%s'"%(sr_no,doc.name))
-				frappe.db.sql("delete from `tabSerial No` where make_from='%s'"%(sr_no))
+				# frappe.db.sql("delete from `tabSerial No` where make_from='%s'"%(sr_no))
 
+def delete_sample_product_entry(doc):
+	name = frappe.db.get_value('Sample Product', {'delivery_note': doc.name}, 'name')
+	if name:
+		frappe.delete_doc('Sample Product', name)
 
 #Function to handle serials
 def generate_serial_no_fg(doc,method):
@@ -519,7 +552,7 @@ def update_target_serial_grade(doc,method):
 #track of serials
 def update_serialgl(doc,method):
 	for d in doc.get('mtn_details'):
-		if frappe.db.get_value('Item', d.item_code, 'serial_no') == 'Yes' and d.custom_serial_no:
+		if frappe.db.get_value('Item', d.item_code, 'serial_no') == 'Yes' and d.custom_serial_no and doc.purpose !='Material Transfer':
 			if d.s_warehouse and not d.t_warehouse:
 				serial_no=(d.custom_serial_no).split('\n')
 				for sr_no in serial_no:
@@ -546,6 +579,8 @@ def update_serialgl(doc,method):
 						for sr_no in serial_no_list:
 							frappe.delete_doc("Serial No", sr_no)
 					d.custom_serial_no = ''
+		elif doc.purpose == 'Material Transfer':
+			transfer_drum_warehouses(doc, d, d.s_warehouse)
 
 #update batch status on use
 def update_batch_status(status,target_batch):
@@ -556,7 +591,7 @@ def get_serial_no_dn(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
 	cond=get_conditions(doc)
 	if cond:
-		return frappe.db.sql("""select name, concat('QTY :',qty), concat('Grade : ',grade) from `tabSerial No` %s and status='Available' and item_code='%s'
+		return frappe.db.sql("""select name, concat('QTY :',qty), concat('Grade : ',grade) from `tabSerial No` %s and status='Available' and ifnull(qty, 0) >0 and item_code='%s'
 			and name like '%%%s%%' limit %s, %s """%(cond,doc['item_code'], txt, start, page_len)) or [['']]
 	else:
 		return [['']]
@@ -775,23 +810,32 @@ def get_the_drums(doc, method):
 
 def make_sicomill(doc):
 	for d in doc.mtn_details:
-		if frappe.db.get_value('Item', d.item_code, 'serial_no') == 'Yes':
-			if d.s_warehouse and not d.t_warehouse:
+		if frappe.db.get_value('Item', d.item_code, 'serial_no') == 'Yes' and doc.purpose != 'Material Transfer':
+			if d.s_warehouse and not d.t_warehouse and d.qty_per_drum_bag:
 				validate_serial_no(d)
 				reduce_the_qty(doc, d)
 			elif d.t_warehouse and not d.s_warehouse:
 				create_serial_no(doc,d)
+		elif doc.purpose == 'Material Transfer':
+			validate_serial_no(d)
+			transfer_drum_warehouses(doc, d, d.t_warehouse)
 
 def reduce_the_qty(doc, args):
-	sn = cstr(args.custom_serial_no).split('\n')
-	for serial_no in sn:
-		if serial_no:
-			sn_details = get_serial_NoInfo(serial_no)
-			if flt(sn_details.qty) >= flt(args.qty_per_drum_bag):
-				sn_details.qty = flt(sn_details.qty) - flt(args.qty_per_drum_bag)
-			else:
-				frappe.throw(_("Drum no {0} has less qty use another drum, check row {1}").format(serial_no, args.idx))
-			make_serialgl(sn_details, args, serial_no , args.qty_per_drum_bag , doc)
+	if args.custom_serial_no:
+		sn = cstr(args.custom_serial_no).split('\n')
+		stock_entry_qty = args.qty
+		for serial_no in sn:
+			if serial_no:
+				if flt(stock_entry_qty) > 0.0:
+					sn_details = get_serial_NoInfo(serial_no)
+					if flt(sn_details.qty) >= flt(args.qty_per_drum_bag):
+						sn_details.qty = flt(sn_details.qty) - flt(args.qty_per_drum_bag)
+						stock_entry_qty = stock_entry_qty - args.qty_per_drum_bag
+					else:
+						frappe.throw(_("Drum no {0} has less qty use another drum, check row {1}").format(serial_no, args.idx))
+					make_serialgl(sn_details, args, serial_no , args.qty_per_drum_bag , doc)
+				else:
+					frappe.throw(_("You have select extra drum at row {0}").format(args	.idx))
 
 def create_serial_no(doc, args):
 	if args.no_of_qty and args.qty_per_drum_bag:
@@ -885,3 +929,15 @@ def update_charge_no(doc):
 			and stock_entry_number = '%s'"""%(doc.charge_number, doc.name))
 		frappe.db.sql(""" delete from `tabProduction Output History` where parent = '%s'
 			and stock_entry_number = '%s'"""%(doc.charge_number, doc.name))
+
+def check_qty_per_drum(args ,per_drum_qty, serial_no_details):
+	if flt(per_drum_qty) > flt(serial_no_details.qty):
+		frappe.throw(_("Row no {0}, drum no {1} has less qty inside, select another drum").format(args.idx, serial_no_details.name))
+
+def transfer_drum_warehouses(doc, args, warehouse):
+	if args.custom_serial_no:
+		for sn in cstr(args.custom_serial_no).split('\n'):
+			if sn:
+				sn_details = get_serial_NoInfo(sn)
+				sn_details.serial_no_warehouse = warehouse
+				sn_details.save(ignore_permissions = True)
