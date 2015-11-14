@@ -621,13 +621,18 @@ def get_conditions(doc):
 #return query to get serials
 def get_serial_no(doctype,txt,searchfield,start,page_len,filters):
 	doc=filters['doc']
-	if doc['t_warehouse'] and not doc['s_warehouse']:
-		return [['']]
-	else:
-		warehouse = doc['s_warehouse'] or doc['t_warehouse']
+	warehouse = doc['s_warehouse'] or doc['t_warehouse']
+	if doc['purpose'] != 'Material Transfer':
+		if doc['t_warehouse'] and not doc['s_warehouse']:
+			return [['']]
+		else:
+			return frappe.db.sql("""select name, concat('Qty: ',round(qty,3)), concat('Grade :',grade) from `tabSerial No` where item_code='%s'
+			and ifnull(qty,0)<>0
+			and status='Available' and serial_no_warehouse='%s' and name like '%%%s%%' limit %s, %s"""%(doc['item_code'], warehouse, txt, start, page_len))
+	elif doc['purpose'] == 'Material Transfer':
 		return frappe.db.sql("""select name, concat('Qty: ',round(qty,3)), concat('Grade :',grade) from `tabSerial No` where item_code='%s'
-		and ifnull(qty,0)<>0
-		and status='Available' and serial_no_warehouse='%s' and name like '%%%s%%' limit %s, %s"""%(doc['item_code'], warehouse, txt, start, page_len), debug=1)
+			and ifnull(qty,0) = %s and status='Available' and 
+			serial_no_warehouse='%s' and name like '%%%s%%' limit %s, %s"""%(doc['item_code'], doc['qty_per_drum_bag'], warehouse, txt, start, page_len), debug=1)
 
 #anand
 def get_serial_from(doctype,txt,searchfield,start,page_len,filters):
